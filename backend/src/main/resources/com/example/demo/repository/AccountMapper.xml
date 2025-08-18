@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.AccountMapper">
+	<resultMap id="AccountWithAuthority" type="com.example.demo.entity.Account">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="hashed_password" property="hashedPassword"/>
+		<result column="display_name" property="displayName"/>
+		<result column="created_at" property="createdAt" />
+		<result column="updated_at" property="updatedAt" />
+		<result column="deleted_at" property="deletedAt" />
+		<result column="authority" property="authority" javaType="com.example.demo.entity.Role"/>
+	</resultMap>
+	<select id="getAccountById" resultMap="AccountWithAuthority">
+		SELECT 
+		 id,
+		 name,
+		 hashed_password,
+		 display_name,
+		 authority, 
+		 created_at,
+		 updated_at,
+		 deleted_at 
+		FROM accounts 
+		WHERE id = #{id} AND deleted_at IS NULL
+	</select>
+	<insert id="insertAccount" parameterType="com.example.demo.entity.Account">
+		INSERT INTO accounts(
+		 name, 
+		 hashed_password, 
+		 display_name, 
+		 authority, 
+		 created_at, 
+		 updated_at, 
+		 deleted_at
+		 )
+		VALUES(
+		 #{name},
+		 #{hashedPassword},
+		 #{displayName},
+		 #{authority},
+		 CURRENT_TIMESTAMP,
+		 CURRENT_TIMESTAMP,
+		 NULL
+		 )
+	</insert>
+	<update id="updateAccountName" parameterType="com.example.demo.entity.Account">
+		UPDATE accounts 
+		SET name = #{name} ,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id} 
+		AND updated_at = #{updatedAt} 
+		AND deleted_at IS NULL
+	</update>
+	<update id="updatePassword" parameterType="com.example.demo.entity.Account">
+		UPDATE accounts 
+		SET hashed_password = #{hashedPassword} , 
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id} 
+		AND updated_at = #{updatedAt} 
+		AND deleted_at IS NULL
+	</update>
+	<update id="updateDisplayName" parameterType="com.example.demo.entity.Account">
+		UPDATE accounts 
+		SET display_name = #{displayName},
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id} 
+		AND updated_at = #{updatedAt} 
+		AND deleted_at IS NULL
+	</update>
+	<update id="updateAuthority" parameterType="com.example.demo.entity.Account">
+		UPDATE accounts 
+		SET authority = #{authority} , 
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id} 
+		AND updated_at = #{updatedAt} 
+		AND deleted_at IS NULL
+	</update>
+	<update id="deleteAccountById" parameterType="com.example.demo.entity.Account">
+		UPDATE accounts 
+		SET deleted_at = CURRENT_TIMESTAMP ,
+			updated_at = CURRENT_TIMESTAMP 
+		WHERE id = #{id} 
+		AND deleted_at IS NULL 
+		AND updated_at = #{updatedAt} 
+	</update>
+</mapper>

@@ -10,19 +10,21 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class Image {
 	
 	private int id;
 	
 	private String name;
 	
-	private String path_name;
+	private String filePath;
 	
-	private LocalDateTime created_at;
+	private LocalDateTime createdAt;
 	
-	private LocalDateTime updated_at;
+	private LocalDateTime updatedAt;
 	
-	private Account account;
+	private int messageId;
+	
+	private Message message;
 }

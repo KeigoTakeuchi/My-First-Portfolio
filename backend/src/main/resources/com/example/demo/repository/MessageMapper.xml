@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.MessageMapper">
+
+	<resultMap id="baseMessageResultMap" type="com.example.demo.entity.Message">
+		<id property="id" column="id"/>
+		<result property="title" column="title"/>
+		<result property="content" column="content"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="accountId" column="account_id"/>
+	</resultMap>
+	
+	<resultMap id="messageWithAccountResultMap" extends="baseMessageResultMap" type="com.example.demo.entity.Message">
+		<association property="account" javaType="com.example.demo.entity.Account">
+			<id column="account_id" property="id"/>
+			<result column="account_name" property="name"/>
+			<result column="hashed_password" property="hashedPassword" />
+			<result column="display_name" property="displayName"/>
+			<result column="authority" property="authority" javaType="com.example.demo.entity.Role"/>
+			<result column="account_created_at" property="createdAt"/>
+			<result column="account_updated_at" property="updatedAt"/>
+			<result column="account_deleted_at" property="deletedAt"/>
+		</association>
+	</resultMap>
+	
+	<resultMap id="messageWithAllDetailsResultMap" extends="messageWithAccountResultMap" type="com.example.demo.entity.Message">
+		<collection property="images" ofType="com.example.demo.entity.Image">
+			<id column="image_id" property="id"/>
+			<result column="image_name" property="name"/>
+			<result column="image_path_name" property="filePath"/>
+			<result column="image_created_at" property="createdAt"/>
+			<result column="image_updated_at" property="updatedAt"/>
+			<result column="message_id" property="messageId"/>
+		</collection>
+	</resultMap>
+	
+	<select id="getMessageById" resultMap="baseMessageResultMap">
+		SELECT 
+		<!--Message-->
+		 m.id ,
+		 m.title ,
+		 m.content ,
+		 m.created_at ,
+		 m.updated_at ,
+		 m.account_id 
+		 <!--結合条件など -->
+		FROM messages AS m
+		WHERE m.id = #{id}
+	</select>
+	<select id="getAllMessagesByAccountId" resultMap="messageWithAccountResultMap">
+		SELECT
+		 <!--Message-->
+		 m.id ,
+		 m.title ,
+		 m.content ,
+		 m.created_at ,
+		 m.updated_at ,
+		 <!--Account-->
+		 a.id AS account_id,
+		 a.name AS account_name,
+		 a.display_name AS display_name,
+		 a.authority,
+		 a.created_at AS account_created_at,
+		 a.updated_at AS account_updated_at,
+		 a.deleted_at AS account_deleted_at
+		FROM messages AS m
+		JOIN accounts AS a ON m.account_id = a.id
+		WHERE m.account_id = #{id} 
+	</select>
+	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO messages (
+			title,
+			content,
+			created_at,
+			updated_at,
+			account_id
+			)
+		VALUES (
+			#{title},
+			#{content},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP,
+			#{accountId}
+			)
+	</insert>
+	<update id="updateTitleById" parameterType="com.example.demo.entity.Message">
+		UPDATE messages 
+		SET title = #{title} ,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id}
+		AND updated_at = #{updatedAt}
+	</update>
+	<update id="updateContentById" parameterType="com.example.demo.entity.Message">
+		UPDATE messages
+		SET content = #{content},
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id}
+		AND updated_at = #{updatedAt}
+	</update>
+	<delete id="deleteMessageById" parameterType="com.example.demo.entity.Message">
+		DELETE FROM messages 
+		WHERE id = #{id}
+		AND updated_at = #{updatedAt}
+	</delete>
+	<delete id="deleteAllMessagesByAccountId" parameterType="com.example.demo.entity.Message">
+		DELETE FROM messages 
+		WHERE account_id = #{accountId}
+		AND updated_at = #{updatedAt}
+	</delete>
+</mapper>

@@ -2,12 +2,15 @@ package com.example.demo.entity;
 
 import java.time.LocalDateTime;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class Account {
 	
@@ -15,15 +18,15 @@ public class Account {
 	
 	private String name;
 	
-	private String hashed_password;
+	private String hashedPassword;
 	
-	private String display_name;
+	private String displayName;
 	
 	private Role authority;
 	
-	private LocalDateTime created_at;
+	private LocalDateTime createdAt;
 	
-	private LocalDateTime updated_at;
+	private LocalDateTime updatedAt;
 	
-	private LocalDateTime deleted_at;
+	private LocalDateTime deletedAt;
 }

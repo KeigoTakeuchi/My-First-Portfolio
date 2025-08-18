@@ -21,9 +21,11 @@ public class Message {
 	
 	private String content;
 	
-	private LocalDateTime created_at;
+	private LocalDateTime createdAt;
 	
-	private LocalDateTime updated_at;
+	private LocalDateTime updatedAt;
+	
+	private int accountId;
 	
 	private Account account;
 	

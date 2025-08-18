@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.ImageMapper">
+
+	<resultMap id="baseImageResultMap" type="com.example.demo.entity.Image">
+		<id property="id" column="id" />
+		<result property="name" column="name"/>
+		<result property="filePath" column="file_path"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="messageId" column="message_id"/>
+	</resultMap>
+	<resultMap id="imageWithMessageResultMap" type="com.example.demo.entity.Image" extends="baseImageResultMap">
+		<association property="message" javaType="com.example.demo.entity.Message">
+			<id property="id" column="message_id"/>
+			<result property="title" column="message_title"/>
+			<result property="content" column="message_content"/>
+			<result property="createdAt" column="message_created_at"/>
+			<result property="updatedAt" column="message_updated_at"/>
+			<result property="accountId" column="account_id"/>
+		</association>
+	</resultMap>
+	<resultMap id="imageWithAllDetailsResultMap" type="com.example.demo.entity.Image" extends="imageWithMessageResultMap">
+		<association property="account" javaType="com.example.demo.entity.Account">
+			<id property="id" column="account_id"/>
+			<result property="name" column="account_name"/>
+			<result property="hashedPassword" column="account_hashed_password"/>
+			<result property="displayName" column="display_name"/>
+			<result property="authority" column="authority" javaType="com.example.demo.entity.Role"/>
+			<result property="createdAt" column="account_created_at" />
+			<result property="updatedAt" column="account_updated_at" />
+			<result property="deletedAt" column="account_deleted_at" />
+		</association>
+	</resultMap>
+	
+	<select id="getImageById" resultMap="baseImageResultMap">
+		SELECT 
+		 id,
+		 name,
+		 file_path,
+		 created_at,
+		 updated_at,
+		 message_id
+		FROM images
+		WHERE id = #{id}
+	</select>
+	<select id="getImagesByMessageId" resultMap="imageWithMessageResultMap">
+		SELECT
+		<!--image--> 
+		 i.id,
+		 i.name,
+		 i.file_path,
+		 i.created_at,
+		 i.updated_at,
+		 i.message_id,
+		 <!--message-->
+		 m.id AS message_id,
+		 m.title AS message_title,
+		 m.content AS message_content,
+		 m.created_at AS message_created_at,
+		 m.updated_at AS message_updated_at,
+		 m.account_id
+		FROM images AS i
+		JOIN messages AS m ON i.message_id = m.id
+		WHERE i.message_id = #{id}
+	</select>
+	<select id="getImagesByAccountId" resultMap="imageWithMessageResultMap">
+		SELECT
+		<!--image--> 
+		 i.id,
+		 i.name,
+		 i.file_path,
+		 i.created_at,
+		 i.updated_at,
+		 i.message_id,
+		 <!--message-->
+		 m.id AS message_id,
+		 m.title AS message_title,
+		 m.content AS message_content,
+		 m.created_at AS message_created_at,
+		 m.updated_at AS message_updated_at,
+		 m.account_id
+		FROM images AS i
+		JOIN messages AS m ON i.message_id = m.id
+		WHERE m.account_id = #{id}
+	</select>
+	<insert id="insertImage" parameterType="com.example.demo.entity.Image" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO images(
+			name,
+			file_path,
+			created_at,
+			updated_at,
+			message_id
+			)
+		VALUES(
+			#{name},
+			#{filePath},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP,
+			#{messageId}
+			)
+	</insert>
+	<update id="updatePathName" parameterType="com.example.demo.entity.Image">
+		UPDATE images
+		SET file_path = #{filePath},
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id}
+		AND updated_at = #{updatedAt}
+	</update>
+	<delete id="deleteImageById" parameterType="com.example.demo.entity.Image">
+		DELETE FROM images
+		WHERE id = #{id}
+		AND updated_at = #{updatedAt}
+	</delete>
+	<delete id="deleteImagesByMessageId" parameterType="com.example.demo.entity.Image">
+		DELETE FROM images
+		WHERE message_id = #{messageId}
+		AND updated_at = #{updatedAt}
+	</delete>
+</mapper>
