@@ -15,6 +15,10 @@ public interface MessageMapper {
 	
 	List<Message> getAllMessagesByAccountId(Integer id);
 	
+	List<Message> getAllMessages();
+	
+	List<Message> getMessagesByWord(@Param("searchQuery") String word);
+	
 	Integer insertMessage(Message message);
 	
 	Integer updateTitleById(Message message);

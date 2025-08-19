@@ -68,6 +68,37 @@
 		JOIN accounts AS a ON m.account_id = a.id
 		WHERE m.account_id = #{id} 
 	</select>
+	<select id="getMessagesByWord" resultMap="messageWithAccountResultMap">
+		SELECT 
+		<!--message -->
+		 m.id,
+		 m.title,
+		 m.content,
+		 m.created_at,
+		 m.updated_at,
+		 <!--account -->
+		 a.id AS account_id,
+		 a.name AS account_name,
+		 a.display_name AS display_name,
+		 a.authority,
+		 a.created_at AS account_created_at,
+		 a.updated_at AS account_updated_at,
+		 a.deleted_at AS account_deleted_at
+		FROM messages AS m
+		JOIN accounts ON m.account_id = a.id
+		WHERE m.title LIKE #{searchQuery}
+		OR m.content LIKE #{searchQuery}
+	</select>
+	<select id="getAllMessages" resultMap="baseMessageResultMap">
+		SELECT 
+		 id,
+		 account_id,
+		 title,
+		 content,
+		 created_at,
+		 updated_at
+		FROM messages
+	</select>
 	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO messages (
 			title,
