@@ -8,7 +8,6 @@
 		<result property="content" column="content"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
-		<result property="accountId" column="account_id"/>
 	</resultMap>
 	
 	<resultMap id="messageWithAccountResultMap" extends="baseMessageResultMap" type="com.example.demo.entity.Message">
@@ -28,14 +27,13 @@
 		<collection property="images" ofType="com.example.demo.entity.Image">
 			<id column="image_id" property="id"/>
 			<result column="image_name" property="name"/>
-			<result column="image_path_name" property="filePath"/>
+			<result column="image_file_path" property="filePath"/>
 			<result column="image_created_at" property="createdAt"/>
 			<result column="image_updated_at" property="updatedAt"/>
-			<result column="message_id" property="messageId"/>
 		</collection>
 	</resultMap>
 	
-	<select id="getMessageById" resultMap="baseMessageResultMap">
+	<select id="getMessageById" resultMap="messageWithAllDetailsResultMap">
 		SELECT 
 		<!--Message-->
 		 m.id ,
@@ -43,9 +41,24 @@
 		 m.content ,
 		 m.created_at ,
 		 m.updated_at ,
-		 m.account_id 
+		 <!--Account-->
+		 a.id AS account_id,
+		 a.name AS account_name,
+		 a.display_name AS display_name,
+		 a.authority,
+		 a.created_at AS account_created_at,
+		 a.updated_at AS account_updated_at,
+		 a.deleted_at AS account_deleted_at
+		 <!-- Image-->
+		 i.id AS image_id,
+		 i.name AS image_name,
+		 i.file_path AS image_file_path,
+		 i.created_at AS image_created_at,
+		 i.updated_at AS image_updated_at
 		 <!--結合条件など -->
 		FROM messages AS m
+		JOIN accounts ON m.account_id = a.id
+		LEFT JOIN images AS i ON i.message_id = m.id
 		WHERE m.id = #{id}
 	</select>
 	<select id="getAllMessagesByAccountId" resultMap="messageWithAccountResultMap">
@@ -89,15 +102,25 @@
 		WHERE m.title LIKE #{searchQuery}
 		OR m.content LIKE #{searchQuery}
 	</select>
-	<select id="getAllMessages" resultMap="baseMessageResultMap">
+	<select id="getAllMessages" resultMap="messageWithAccountResultMap">
 		SELECT 
-		 id,
-		 account_id,
-		 title,
-		 content,
-		 created_at,
-		 updated_at
-		FROM messages
+		<!--message -->
+		 m.id,
+		 m.title,
+		 m.content,
+		 m.created_at,
+		 m.updated_at,
+		 <!--account -->
+		 a.id AS account_id,
+		 a.name AS account_name,
+		 a.display_name AS display_name,
+		 a.authority,
+		 a.created_at AS account_created_at,
+		 a.updated_at AS account_updated_at,
+		 a.deleted_at AS account_deleted_at
+		FROM messages AS m
+		JOIN accounts AS a ON m.account_id = a.id
+		WHERE a.deleted_at IS NULL
 	</select>
 	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO messages (
@@ -115,28 +138,21 @@
 			#{accountId}
 			)
 	</insert>
-	<update id="updateTitleById" parameterType="com.example.demo.entity.Message">
+	<update id="updateMessageById" parameterType="com.example.demo.entity.Message">
 		UPDATE messages 
 		SET title = #{title} ,
+			content = #{content},
 			updated_at = CURRENT_TIMESTAMP
 		WHERE id = #{id}
 		AND updated_at = #{updatedAt}
 	</update>
-	<update id="updateContentById" parameterType="com.example.demo.entity.Message">
-		UPDATE messages
-		SET content = #{content},
-			updated_at = CURRENT_TIMESTAMP
-		WHERE id = #{id}
-		AND updated_at = #{updatedAt}
-	</update>
-	<delete id="deleteMessageById" parameterType="com.example.demo.entity.Message">
+	<delete id="deleteMessageById">
 		DELETE FROM messages 
 		WHERE id = #{id}
 		AND updated_at = #{updatedAt}
 	</delete>
-	<delete id="deleteAllMessagesByAccountId" parameterType="com.example.demo.entity.Message">
+	<delete id="deleteAllMessagesByAccountId">
 		DELETE FROM messages 
 		WHERE account_id = #{accountId}
-		AND updated_at = #{updatedAt}
 	</delete>
 </mapper>

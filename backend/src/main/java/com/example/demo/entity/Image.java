@@ -24,7 +24,5 @@ public class Image {
 	
 	private LocalDateTime updatedAt;
 	
-	private int messageId;
-	
 	private Message message;
 }

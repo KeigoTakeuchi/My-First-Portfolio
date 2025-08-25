@@ -2,23 +2,24 @@ package com.example.demo.service;
 
 import java.util.List;
 
-import com.example.demo.entity.Message;
+import com.example.demo.dto.MessageFormDTO;
+import com.example.demo.dto.MessageViewDTO;
 
 public interface MessageService {
 
-	List<Message> getAllMessages();
+	List<MessageViewDTO> getAllMessages();
 	
-	List<Message> getAllMessagesByAccountId(Integer accountId);
+	List<MessageViewDTO> getAllMessagesByAccountId(Integer accountId);
 	
-	List<Message> searchMessagesByWord(String word);
+	MessageViewDTO getMessage(Integer id);
 	
-	void postMessage(Message message,Integer accountId);
+	List<MessageViewDTO> searchMessagesByWord(String word);
 	
-	void changeTitle(Message message);
+	void postMessage(MessageFormDTO messageForm,Integer accountId);
 	
-	void changeContent(Message message);
+	void changeMessage(MessageFormDTO messageForm,Integer id);
+
+	void deleteMessages(Integer id);
 	
-	void deleteMessages(Message message,Integer id);
-	
-	void deleteAllMessagesByAccount(Message message,Integer accountId);
+	void deleteAllMessagesByAccount(Integer accountId);
 }

@@ -2,11 +2,21 @@ package com.example.demo.service.Impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.demo.entity.Image;
 import com.example.demo.service.ImageService;
 
+import lombok.RequiredArgsConstructor;
+
+
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
 
+	
 	@Override
 	public Image getImage(Integer id) {
 		// TODO 自動生成されたメソッド・スタブ

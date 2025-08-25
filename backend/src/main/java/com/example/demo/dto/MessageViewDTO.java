@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class Message {
-
+public class MessageViewDTO {
+	
 	private int id;
+
+	private String displayName;
 	
 	private String title;
 	
 	private String content;
 	
+	private List<ImageDTO> images;
+	
 	private LocalDateTime createdAt;
 	
 	private LocalDateTime updatedAt;
-	
-	private Account account;
-	
-	private List<Image> images;
 }

@@ -17,7 +17,7 @@ public interface ImageMapper {
 	
 	List<Image> getImagesByAccountId(Integer id);
 	
-	Integer insertImage(Image image);
+	Integer insertImage(@Param("messageId")Integer messageId,Image image);
 	
 	Integer updatePathName(Image image);
 	

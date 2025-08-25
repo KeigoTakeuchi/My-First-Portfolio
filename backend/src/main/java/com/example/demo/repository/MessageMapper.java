@@ -19,14 +19,12 @@ public interface MessageMapper {
 	
 	List<Message> getMessagesByWord(@Param("searchQuery") String word);
 	
-	Integer insertMessage(Message message);
+	Integer insertMessage(@Param("accountId") Integer accountId ,Message message);
 	
-	Integer updateTitleById(Message message);
-	
-	Integer updateContentById(Message message);
+	Integer updateMessageById(Message message);
 	
 	Integer deleteMessageById(@Param("id") Integer id, @Param("updatedAt") LocalDateTime updatedAt);
 	
-	Integer deleteAllMessagesByAccountId(@Param("accountId") Integer id, @Param("updatedAt")LocalDateTime updatedAt);
+	Integer deleteAllMessagesByAccountId(@Param("accountId") Integer accountId);
 	
 }
