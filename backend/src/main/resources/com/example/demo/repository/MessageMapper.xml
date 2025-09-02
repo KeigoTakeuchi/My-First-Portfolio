@@ -122,6 +122,13 @@
 		JOIN accounts AS a ON m.account_id = a.id
 		WHERE a.deleted_at IS NULL
 	</select>
+	<select id="getMessageIdByAccountId" resultMap="messageWithAccountResultMap">
+		SELECT m.id
+		FROM messages AS m
+		JOIN accounts AS a ON m.account_id = a.id
+		WHERE a.deleted_at IS NULL 
+		AND m.account_id = #{accountId} 
+	</select>
 	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO messages (
 			title,

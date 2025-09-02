@@ -1,20 +1,26 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AccountPasswordUpdateForm;
+import com.example.demo.dto.AccountRegisterFormDTO;
+import com.example.demo.dto.AccountUpdateFormDTO;
+import com.example.demo.dto.AccountViewDTO;
 import com.example.demo.entity.Account;
 
 public interface AccountService {
 
 	Account getAccount(Integer accountId);
 	
-	void registerAccount(Account account);
+	AccountViewDTO getAccountForView(Integer accountId);
 	
-	void changeName(Account account);
+	Account findAccountByName(String name);
 	
-	void changePassword(Account account);
+	Account findAccountByDisplayName(String displayName);
 	
-	void changeDisplayName(Account account);
+	void registerAccount(AccountRegisterFormDTO accountForm);
 	
-	void updateAuthority(Account account);
+	void changeAccount(AccountUpdateFormDTO accountForm);
 	
-	void deleteAccount(Account account);
+	void changePassword(AccountPasswordUpdateForm passForm);
+		
+	void deleteAccount(Integer accountId);
 }

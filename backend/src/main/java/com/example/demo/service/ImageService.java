@@ -18,5 +18,7 @@ public interface ImageService {
 	
 	void deleteImage(Image image);
 	
-	void deleteImageByMessage(Image image, Integer messageId);
+	void deleteImageByMessage(Integer messageId);
+	
+	void deleteImagesByAccountId(Integer accountId);
 }

@@ -23,5 +23,7 @@ public interface ImageMapper {
 	
 	Integer deleteImageById(@Param("id")Integer id, @Param("updatedAt")LocalDateTime updatedAt);
 	
-	Integer deleteImagesByMessageId(@Param("messageId")Integer messageId, @Param("updatedAt")LocalDateTime updatedAt);
+	Integer deleteImagesByMessageId(@Param("messageId")Integer messageId,@Param("updatedAt") LocalDateTime updatedAt);
+	
+	Integer deleteImagesByMessageIds(List<Integer> messageId);
 }

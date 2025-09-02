@@ -12,9 +12,9 @@ import com.example.demo.dto.MessageViewDTO;
 import com.example.demo.entity.Account;
 import com.example.demo.entity.Message;
 import com.example.demo.helper.DTOConverter;
-import com.example.demo.repository.AccountMapper;
-import com.example.demo.repository.ImageMapper;
 import com.example.demo.repository.MessageMapper;
+import com.example.demo.service.AccountService;
+import com.example.demo.service.ImageService;
 import com.example.demo.service.MessageService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 public class MessageServiceImpl implements MessageService {
 
 	private final MessageMapper messageMapper;
-	private final AccountMapper accountMapper;
-	private final ImageMapper imageMapper;
+	private final AccountService accountService;
+	private final ImageService imageService;
 	
 	public List<MessageViewDTO> getAllMessages(){
 		
@@ -87,10 +87,14 @@ public class MessageServiceImpl implements MessageService {
 		return messageViewList;
 	}
 	
+	public List<Integer> getMessageIdByAccountId(Integer accountId){
+		return messageMapper.getMessageIdByAccountId(accountId);
+	}
+	
 	//Valid通過後のハンドラメソッド内でScopeからAccountIdを取得する
 	public void postMessage(MessageFormDTO messageForm,Integer accountId) {
 		//引数のIDをもとにAccountEntityの取得
-		Account account = accountMapper.getAccountById(accountId);
+		Account account = accountService.getAccount(accountId);
 				
 		//Formから画像を受け取った場合の処理
 		if(messageForm.getImages() != null && !messageForm.getImages().isEmpty()) {
@@ -128,9 +132,15 @@ public class MessageServiceImpl implements MessageService {
 	
 	
 	//一覧表示から消すことを想定
+	//Imageの削除処理も要実装
 	public void deleteMessages(Integer id) {
+		
 		Message message = messageMapper.getMessageById(id);
+		
+		imageService.deleteImageByMessage(message.getId());
+		
 		messageMapper.deleteMessageById(id, message.getUpdatedAt());
+		
 	}
 	
 	public void deleteAllMessagesByAccount(Integer accountId) {

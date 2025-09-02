@@ -1,50 +1,117 @@
 package com.example.demo.service.Impl;
 
-import com.example.demo.entity.Account;
-import com.example.demo.service.AccountService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dto.AccountPasswordUpdateForm;
+import com.example.demo.dto.AccountRegisterFormDTO;
+import com.example.demo.dto.AccountUpdateFormDTO;
+import com.example.demo.dto.AccountViewDTO;
+import com.example.demo.entity.Account;
+import com.example.demo.helper.DTOConverter;
+import com.example.demo.repository.AccountMapper;
+import com.example.demo.service.AccountService;
+import com.example.demo.service.ImageService;
+import com.example.demo.service.MessageService;
+
+import lombok.RequiredArgsConstructor;
+
+
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
+	
+	private final AccountMapper accountMapper;
+	private final MessageService messageService;
+	private final ImageService imageService;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	public Account getAccount(Integer accountId) {
 		// TODO 自動生成されたメソッド・スタブ
-		return null;
+		Account account = accountMapper.getAccountById(accountId);
+		
+		//nullの扱いとdeletedAtでの例外処理も
+		if(account == null) {
+			return null;
+		}
+		return account;
+	}
+	
+	public AccountViewDTO getAccountForView(Integer accountId) {
+		
+		Account account = accountMapper.getAccountById(accountId);
+		
+		if(account == null) {
+			return null;
+		}
+		AccountViewDTO accountViewDTO = DTOConverter.convertToAccountViewDTOByAccount(account);
+		//例外処理は後で
+		
+		return accountViewDTO;
+	}
+	
+	public Account findAccountByName(String name) {
+		return accountMapper.getAccountByName(name);
+	}
+
+	public Account findAccountByDisplayName(String displayName) {
+		return accountMapper.getAccountByDisplayName(displayName);
+	}
+	@Override
+	public void registerAccount(AccountRegisterFormDTO accountForm) {
+		// TODO 自動生成されたメソッド・スタブ
+		Account account = DTOConverter.convertToAccountByRegisterDTO(accountForm);
+		
+		String inputPassword = accountForm.getInputPassword();
+		String hashedPassword = passwordEncoder.encode(inputPassword);
+		account.setHashedPassword(hashedPassword);
+		
+		
+
+		//例外処理は後でまとめて実装予定(以下Integerを返すMapper更新系)
+		accountMapper.insertAccount(account);
+		return ;
 	}
 
 	@Override
-	public void registerAccount(Account account) {
+	public void changeAccount(AccountUpdateFormDTO accountForm) {
 		// TODO 自動生成されたメソッド・スタブ
-
+		//Accountが削除または存在しない場合の例外処理はあとで実装予定
+		Account account = accountMapper.getAccountById(accountForm.getId());
+		//Account account = DTOConverter.convertToAccountByUpdateDTO(accountForm);
+		account.setName(accountForm.getInputName());
+		account.setDisplayName(accountForm.getInputDisplayName());
+		accountMapper.updateAccount(account);
+		return ;
+	}
+	
+	public void changePassword(AccountPasswordUpdateForm passForm) {
+		Account account = accountMapper.getAccountById(passForm.getId());
+		
+		
+		String inputNewPassword = passForm.getInputNewPassword();
+		String inputHashedPassword = passwordEncoder.encode(inputNewPassword);
+		
+		account.setHashedPassword(inputHashedPassword);
+		
+		accountMapper.updateAccount(account);
+		
+		return;
 	}
 
 	@Override
-	public void changeName(Account account) {
+	public void deleteAccount(Integer accountId) {
 		// TODO 自動生成されたメソッド・スタブ
-
-	}
-
-	@Override
-	public void changePassword(Account account) {
-		// TODO 自動生成されたメソッド・スタブ
-
-	}
-
-	@Override
-	public void changeDisplayName(Account account) {
-		// TODO 自動生成されたメソッド・スタブ
-
-	}
-
-	@Override
-	public void updateAuthority(Account account) {
-		// TODO 自動生成されたメソッド・スタブ
-
-	}
-
-	@Override
-	public void deleteAccount(Account account) {
-		// TODO 自動生成されたメソッド・スタブ
-
+		Account account = accountMapper.getAccountById(accountId);
+		
+		imageService.deleteImagesByAccountId(account.getId());
+		
+		messageService.deleteAllMessagesByAccount(account.getId());
+		accountMapper.deleteAccountById(account);
+		return;
 	}
 
 }

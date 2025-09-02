@@ -9,15 +9,13 @@ public interface AccountMapper {
 	
 	Account getAccountById(Integer id);
 	
+	Account getAccountByName(String name);
+	
+	Account getAccountByDisplayName(String displayName);
+	
 	Integer insertAccount(Account account);
 	
-	Integer updateAccountName(Account account);
-	
-	Integer updatePassword(Account account);
-	
-	Integer updateDisplayName(Account account);
-	
-	Integer updateAuthority(Account account);
+	Integer updateAccount(Account account);
 	
 	Integer deleteAccountById(Account account);
 	

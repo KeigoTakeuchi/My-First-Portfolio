@@ -15,6 +15,8 @@ public interface MessageService {
 	
 	List<MessageViewDTO> searchMessagesByWord(String word);
 	
+	List<Integer> getMessageIdByAccountId(Integer accountId);
+	
 	void postMessage(MessageFormDTO messageForm,Integer accountId);
 	
 	void changeMessage(MessageFormDTO messageForm,Integer id);
