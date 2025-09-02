@@ -6,9 +6,12 @@ import jakarta.validation.ConstraintValidatorContext;
 import com.example.demo.entity.Account;
 import com.example.demo.service.AccountService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class UnusedNameValidator implements ConstraintValidator<UnusedName, String> {
 
-	private AccountService service;
+	private final AccountService service;
 	
 	public void initialize(UnusedName constraintAnnotation) {
 		
