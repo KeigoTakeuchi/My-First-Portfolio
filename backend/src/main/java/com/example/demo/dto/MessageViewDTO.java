@@ -3,6 +3,8 @@ package com.example.demo.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.demo.entity.Account;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,4 +30,6 @@ public class MessageViewDTO {
 	private LocalDateTime createdAt;
 	
 	private LocalDateTime updatedAt;
+	
+	private Account account;
 }

@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
 
@@ -17,11 +19,11 @@ public interface MessageService {
 	
 	List<Integer> getMessageIdByAccountId(Integer accountId);
 	
-	void postMessage(MessageFormDTO messageForm,Integer accountId);
+	MessageViewDTO postMessage(MessageFormDTO messageForm,String name,List<MultipartFile> images) ;
 	
-	void changeMessage(MessageFormDTO messageForm,Integer id);
+	void changeMessage(MessageFormDTO messageForm,Integer messageId,String name);
 
-	void deleteMessages(Integer id);
+	void deleteMessages(Integer messageId,String name);
 	
 	void deleteAllMessagesByAccount(Integer accountId);
 }

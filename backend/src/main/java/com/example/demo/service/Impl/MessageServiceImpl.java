@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
@@ -92,16 +94,20 @@ public class MessageServiceImpl implements MessageService {
 	}
 	
 	//Valid通過後のハンドラメソッド内でScopeからAccountIdを取得する
-	public void postMessage(MessageFormDTO messageForm,Integer accountId) {
+	public MessageViewDTO postMessage(MessageFormDTO messageForm,String name,List<MultipartFile> images) {
 		//引数のIDをもとにAccountEntityの取得
-		Account account = accountService.getAccount(accountId);
+		Account account = accountService.findAccountByName(name);
 				
 		//Formから画像を受け取った場合の処理
-		if(messageForm.getImages() != null && !messageForm.getImages().isEmpty()) {
+		if(images != null && !images.isEmpty()) {
 			/*ここでMultipartFile型のDTOをUUIDで自動生成した文字列とファイル名(MultipartFile.getOriginalFileName()で取得可)を
 			 * 組み合わせたオブジェクトキーを紐づけてfilePathプロパティに格納(例:/images/user/afhd2442jlnj24k.jpg)
 			 * して、MessageForm内のList<MultipartFile> imagesをImageEntityとして補完していき、完成したImageEntityのListを保持しておく
 			 */
+			/*for (MultipartFile multiFile : images) {
+				multiFile.getOriginalFilename()
+			}
+			*/
 		}
 		//取得したAccountEntityとFormから受け取った変数をもとにMessageEntityへ変換(Imageは別で変換させる)
 		Message message = DTOConverter.convertToMessage(messageForm, account);
@@ -113,15 +119,22 @@ public class MessageServiceImpl implements MessageService {
 			imageMapper.insertImage(message.getId(),image);
 		}
 		*/
+		MessageViewDTO viewDTO = DTOConverter.convertToMessageViewDTO(message);
 		
+		return viewDTO;
 	}
 	/*ControllerでFormページで送られてきたFormDTOとmessageID(@PAthVariable)をもとにMessageEntityを完成させて
 	 * MessageMapperに渡してあげる
 	 */
-	public void changeMessage(MessageFormDTO messageForm,Integer id) {
+	public void changeMessage(MessageFormDTO messageForm,Integer messageId,String name) {
 		//選択されたmessageIdをもとにEntityの準備
-		Message message = messageMapper.getMessageById(id);
+		Message message = messageMapper.getMessageById(messageId);
 		
+		String userName = message.getAccount().getName();
+		
+		if(!userName.equals(name)) {
+			throw new AccessDeniedException("このデータを編集する権限がありません");
+		}
 		//Formから受け取った値をEntityにset
 		message.setTitle(messageForm.getInputTitle());
 		message.setContent(messageForm.getInputContent());
@@ -133,13 +146,19 @@ public class MessageServiceImpl implements MessageService {
 	
 	//一覧表示から消すことを想定
 	//Imageの削除処理も要実装
-	public void deleteMessages(Integer id) {
+	public void deleteMessages(Integer messageId,String name) {
 		
-		Message message = messageMapper.getMessageById(id);
+		Message message = messageMapper.getMessageById(messageId);
+		
+		String userName = message.getAccount().getName();
+		
+		if(!userName.equals(name)) {
+			throw new AccessDeniedException("このデータを編集する権限がありません");
+		}
 		
 		imageService.deleteImageByMessage(message.getId());
 		
-		messageMapper.deleteMessageById(id, message.getUpdatedAt());
+		messageMapper.deleteMessageById(messageId, message.getUpdatedAt());
 		
 	}
 	
