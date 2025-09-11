@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
+import com.example.demo.entity.LoginUser;
 import com.example.demo.service.AccountService;
 import com.example.demo.service.ImageService;
 import com.example.demo.service.MessageService;
@@ -47,8 +47,8 @@ public class MessageController {
 	
 	//詳細表示(一投稿)
 	@GetMapping("/messages/{id}")
-	public MessageViewDTO getMessage(@PathVariable Integer id) {
-		return messageService.getMessage(id);
+	public ResponseEntity<MessageViewDTO> getMessage(@PathVariable Integer id) {
+		return ResponseEntity.ok(messageService.getMessage(id));
 	}
 	
 	//一覧表示(特定のユーザー)
@@ -68,10 +68,13 @@ public class MessageController {
 	public ResponseEntity<MessageViewDTO> registerMessage(
 			@Validated @RequestPart("") MessageFormDTO messageFormDTO,
 			@RequestPart("") List<MultipartFile> images,
-			@AuthenticationPrincipal UserDetails userDetails){
+			Authentication authentication){
 		
+		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
 		
-		MessageViewDTO viewDTO = messageService.postMessage(messageFormDTO, userDetails.getUsername(),images);
+		String username = loginUser.getUsername();
+		
+		MessageViewDTO viewDTO = messageService.postMessage(messageFormDTO,username,images);
 		
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequestUri()
@@ -86,9 +89,12 @@ public class MessageController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void updateMessage(@PathVariable Integer messageId,
 			@Validated @RequestBody MessageFormDTO formDTO,
-			@AuthenticationPrincipal UserDetails userDetails
+			Authentication authentication
 			) {
-		String userName = userDetails.getUsername();
+		
+		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+		
+		String userName = loginUser.getUsername();
 		
 		messageService.changeMessage(formDTO,messageId,userName);
 	}
@@ -96,8 +102,11 @@ public class MessageController {
 	@DeleteMapping("/messages/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteMessage(@PathVariable Integer messageId,
-			@AuthenticationPrincipal UserDetails userDetails) {
-		String userName = userDetails.getUsername();
+			Authentication authentication) {
+		
+		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+		
+		String userName = loginUser.getUsername();
 		messageService.deleteMessages(messageId,userName);
 	}
 }

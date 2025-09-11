@@ -25,12 +25,12 @@ public class AccountPasswordUpdateForm {
 	
 	@NotBlank(message = "以前のパスワードを入力してください")
 	@Size(min = 8,max = 20,message = "パスワードは{min}～{max}文字以内にしてください")
-	@Pattern(regexp = "")
+	@Pattern(regexp = "[a-z0-9]",message = "パスワードは小文字の半角英字、半角数字のみにしてください")
 	private String inputOldPassword;
 	
 	@NotBlank(message = "新しいパスワードを入力してください")
 	@Size(min = 8,max = 20,message = "パスワードは{min}～{max}文字以内にしてください")
-	@Pattern(regexp = "")
+	@Pattern(regexp = "[a-z0-9]",message = "IDは小文字の半角英字、半角数字のみにしてください")
 	private String inputNewPassword;
 	
 	@NotBlank(message = "確認用パスワードを入力してください")

@@ -35,24 +35,30 @@ public class JwtService {
 	//Authentication(認証情報)からTokenを生成
 	public JwtToken generateToken(Authentication authentication) {
 		
+		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+		
 		List<String> stringAuthority = new ArrayList<>();
 		
-		for (GrantedAuthority authority : authentication.getAuthorities()) {
+		for (GrantedAuthority authority : loginUser.getAuthorities()) {
 			stringAuthority.add(authority.getAuthority());
 		}
-		return generateToken(authentication.getName(),stringAuthority);
+		return generateToken(loginUser.getUsername(),stringAuthority,loginUser.getId());
 	}
 	
 	//userDetails(認証情報)からTokenを生成
 	public JwtToken generateToken(UserDetails userDetails) {
 		
+		LoginUser loginUser = (LoginUser) userDetails;
+		
+		Integer accountId = loginUser.getId();
+		
 		List<String> stringAuthority = new ArrayList<>();
 		
-		for (GrantedAuthority authority : userDetails.getAuthorities()) {
+		for (GrantedAuthority authority : loginUser.getAuthorities()) {
 			stringAuthority.add(authority.getAuthority());
 		}
 		
-		return generateToken(userDetails.getUsername(),stringAuthority);
+		return generateToken(loginUser.getUsername(),stringAuthority,accountId);
 	}
 	
 	//AccountエンティティからTokenを生成
@@ -67,7 +73,7 @@ public class JwtService {
 		return generateToken(user);
 	}
 	
-	public JwtToken generateToken(String username,Iterable<String> roles) {
+	public JwtToken generateToken(String username,Iterable<String> roles,Integer account_id) {
 		
 		//現在の時刻を取得
 		Instant now = Instant.now();
@@ -83,6 +89,9 @@ public class JwtService {
 		
 		claims.put("roles", roles);
 		
+		if(account_id != null) {
+			claims.put("id", account_id);
+		}
 		
 		//アクセストークンには権限リストを格納する
 		String accessToken = createToken(username, now, accessTokenExpiry, claims);

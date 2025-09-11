@@ -26,14 +26,13 @@ public class LoginUserDetailsServiceImpl implements UserDetailsService {
 		// TODO 自動生成されたメソッド・スタブ
 		Account account = mapper.getAccountByName(username);
 		
-		List<GrantedAuthority> authorities = account.getAuthority().getAuthorities();
-		
-		if(account != null) {
-			return new LoginUser(account.getName(),account.getHashedPassword(),
-					authorities,account.getId(),account.getDisplayName());
-		}else {
+		if(account == null) {
 			throw new UsernameNotFoundException(username + "指定しているユーザー名は存在しません");
 		}
+		List<GrantedAuthority> authorities = account.getAuthority().getAuthorities();
+		
+		return new LoginUser(account.getName(),account.getHashedPassword(),
+				authorities,account.getId(),account.getDisplayName());
 	}
 	
 
