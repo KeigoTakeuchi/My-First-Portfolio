@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AccountPasswordUpdateForm;
-import com.example.demo.dto.AccountRegisterFormDTO;
 import com.example.demo.dto.AccountUpdateFormDTO;
 import com.example.demo.dto.AccountViewDTO;
 import com.example.demo.entity.Account;
@@ -16,7 +15,6 @@ public interface AccountService {
 	
 	Account findAccountByDisplayName(String displayName);
 	
-	void registerAccount(AccountRegisterFormDTO accountForm);
 	
 	void changeAccount(AccountUpdateFormDTO accountForm);
 	

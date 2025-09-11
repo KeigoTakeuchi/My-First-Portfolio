@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.AccountPasswordUpdateForm;
-import com.example.demo.dto.AccountRegisterFormDTO;
 import com.example.demo.dto.AccountUpdateFormDTO;
 import com.example.demo.dto.AccountViewDTO;
 import com.example.demo.entity.Account;
@@ -59,21 +58,6 @@ public class AccountServiceImpl implements AccountService {
 
 	public Account findAccountByDisplayName(String displayName) {
 		return accountMapper.getAccountByDisplayName(displayName);
-	}
-	@Override
-	public void registerAccount(AccountRegisterFormDTO accountForm) {
-		// TODO 自動生成されたメソッド・スタブ
-		Account account = DTOConverter.convertToAccountByRegisterDTO(accountForm);
-		
-		String inputPassword = accountForm.getInputPassword();
-		String hashedPassword = passwordEncoder.encode(inputPassword);
-		account.setHashedPassword(hashedPassword);
-		
-		
-
-		//例外処理は後でまとめて実装予定(以下Integerを返すMapper更新系)
-		accountMapper.insertAccount(account);
-		return ;
 	}
 
 	@Override

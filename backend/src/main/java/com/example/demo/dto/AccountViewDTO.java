@@ -18,10 +18,6 @@ public class AccountViewDTO {
 	
 	private int id;
 	
-	private String name;
-	
-	private String hashedPassword;
-	
 	private String displayName;
 	
 	private Role authority;
