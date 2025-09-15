@@ -1,7 +1,5 @@
 package com.example.demo.entity;
 
-import java.time.LocalDateTime;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,10 +17,6 @@ public class Image {
 	private String name;
 	
 	private String filePath;
-	
-	private LocalDateTime createdAt;
-	
-	private LocalDateTime updatedAt;
 	
 	private Message message;
 }

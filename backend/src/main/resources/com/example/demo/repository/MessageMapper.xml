@@ -28,8 +28,6 @@
 			<id column="image_id" property="id"/>
 			<result column="image_name" property="name"/>
 			<result column="image_file_path" property="filePath"/>
-			<result column="image_created_at" property="createdAt"/>
-			<result column="image_updated_at" property="updatedAt"/>
 		</collection>
 	</resultMap>
 	
@@ -52,9 +50,7 @@
 		 <!-- Image-->
 		 i.id AS image_id,
 		 i.name AS image_name,
-		 i.file_path AS image_file_path,
-		 i.created_at AS image_created_at,
-		 i.updated_at AS image_updated_at
+		 i.file_path AS image_file_path
 		 <!--結合条件など -->
 		FROM messages AS m
 		JOIN accounts ON m.account_id = a.id

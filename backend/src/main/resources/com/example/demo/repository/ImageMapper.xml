@@ -6,8 +6,6 @@
 		<id property="id" column="id" />
 		<result property="name" column="name"/>
 		<result property="filePath" column="file_path"/>
-		<result property="createdAt" column="created_at"/>
-		<result property="updatedAt" column="updated_at"/>
 		<result property="messageId" column="message_id"/>
 	</resultMap>
 	<resultMap id="imageWithMessageResultMap" type="com.example.demo.entity.Image" extends="baseImageResultMap">
@@ -38,8 +36,6 @@
 		 id,
 		 name,
 		 file_path,
-		 created_at,
-		 updated_at,
 		 message_id
 		FROM images
 		WHERE id = #{id}
@@ -50,8 +46,6 @@
 		 i.id,
 		 i.name,
 		 i.file_path,
-		 i.created_at,
-		 i.updated_at,
 		 i.message_id,
 		 <!--message-->
 		 m.id AS message_id,
@@ -70,8 +64,6 @@
 		 i.id,
 		 i.name,
 		 i.file_path,
-		 i.created_at,
-		 i.updated_at,
 		 i.message_id,
 		 <!--message-->
 		 m.id AS message_id,
@@ -88,34 +80,26 @@
 		INSERT INTO images(
 			name,
 			file_path,
-			created_at,
-			updated_at,
 			message_id
 			)
 		VALUES(
 			#{name},
 			#{filePath},
-			CURRENT_TIMESTAMP,
-			CURRENT_TIMESTAMP,
 			#{messageId}
 			)
 	</insert>
 	<update id="updatePathName" parameterType="com.example.demo.entity.Image">
 		UPDATE images
-		SET file_path = #{filePath},
-			updated_at = CURRENT_TIMESTAMP
+		SET file_path = #{filePath}
 		WHERE id = #{id}
-		AND updated_at = #{updatedAt}
 	</update>
 	<delete id="deleteImageById" parameterType="com.example.demo.entity.Image">
 		DELETE FROM images
 		WHERE id = #{id}
-		AND updated_at = #{updatedAt}
 	</delete>
 	<delete id="deleteImagesByMessageId" parameterType="com.example.demo.entity.Image">
 		DELETE FROM images
 		WHERE message_id = #{messageId}
-		AND updated_at = #{updatedAt}
 	</delete>
 	<delete id="deleteImagesByMessageIds" parameterType="java.util.List">
 		DELETE FROM images
