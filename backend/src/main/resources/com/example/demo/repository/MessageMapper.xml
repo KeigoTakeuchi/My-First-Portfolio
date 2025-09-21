@@ -46,14 +46,14 @@
 		 a.authority,
 		 a.created_at AS account_created_at,
 		 a.updated_at AS account_updated_at,
-		 a.deleted_at AS account_deleted_at
+		 a.deleted_at AS account_deleted_at,
 		 <!-- Image-->
 		 i.id AS image_id,
 		 i.name AS image_name,
 		 i.file_path AS image_file_path
 		 <!--結合条件など -->
 		FROM messages AS m
-		JOIN accounts ON m.account_id = a.id
+		JOIN accounts AS a ON m.account_id = a.id
 		LEFT JOIN images AS i ON i.message_id = m.id
 		WHERE m.id = #{id}
 	</select>
@@ -94,7 +94,7 @@
 		 a.updated_at AS account_updated_at,
 		 a.deleted_at AS account_deleted_at
 		FROM messages AS m
-		JOIN accounts ON m.account_id = a.id
+		JOIN accounts AS a ON m.account_id = a.id
 		WHERE m.title LIKE #{searchQuery}
 		OR m.content LIKE #{searchQuery}
 	</select>
@@ -125,7 +125,7 @@
 		WHERE a.deleted_at IS NULL 
 		AND m.account_id = #{accountId} 
 	</select>
-	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="message.id">
 		INSERT INTO messages (
 			title,
 			content,
@@ -134,8 +134,8 @@
 			account_id
 			)
 		VALUES (
-			#{title},
-			#{content},
+			#{message.title},
+			#{message.content},
 			CURRENT_TIMESTAMP,
 			CURRENT_TIMESTAMP,
 			#{accountId}

@@ -1,5 +1,7 @@
 package com.example.demo.service.Impl;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,10 +63,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public void changeAccount(AccountUpdateFormDTO accountForm) {
+	public void changeAccount(Integer id,AccountUpdateFormDTO accountForm) {
 		// TODO 自動生成されたメソッド・スタブ
-		//Accountが削除または存在しない場合の例外処理はあとで実装予定
-		Account account = accountMapper.getAccountById(accountForm.getId());
+		/*Accountが削除または存在しない場合の例外処理はあとで実装予定
+		*/
+		Account account = accountMapper.getAccountById(id);
 		//Account account = DTOConverter.convertToAccountByUpdateDTO(accountForm);
 		account.setName(accountForm.getInputName());
 		account.setDisplayName(accountForm.getInputDisplayName());
@@ -91,8 +94,12 @@ public class AccountServiceImpl implements AccountService {
 		// TODO 自動生成されたメソッド・スタブ
 		Account account = accountMapper.getAccountById(accountId);
 		
-		imageService.deleteImagesByAccountId(account.getId());
+		List<Integer> messageIds = messageService.getMessageIdByAccountId(accountId);
 		
+		if(messageIds != null && !messageIds.isEmpty()) {
+			imageService.deleteImagesByAccountId(account.getId(),messageIds);
+		}
+				
 		messageService.deleteAllMessagesByAccount(account.getId());
 		accountMapper.deleteAccountById(account);
 		return;

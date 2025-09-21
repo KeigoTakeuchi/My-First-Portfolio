@@ -15,7 +15,6 @@ import com.example.demo.entity.Account;
 import com.example.demo.entity.Message;
 import com.example.demo.helper.DTOConverter;
 import com.example.demo.repository.MessageMapper;
-import com.example.demo.service.AccountService;
 import com.example.demo.service.ImageService;
 import com.example.demo.service.MessageService;
 
@@ -27,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 public class MessageServiceImpl implements MessageService {
 
 	private final MessageMapper messageMapper;
-	private final AccountService accountService;
 	private final ImageService imageService;
 	
 	public List<MessageViewDTO> getAllMessages(){
@@ -94,10 +92,7 @@ public class MessageServiceImpl implements MessageService {
 	}
 	
 	//Valid通過後のハンドラメソッド内でScopeからAccountIdを取得する
-	public MessageViewDTO postMessage(MessageFormDTO messageForm,String name,List<MultipartFile> images) {
-		//引数のIDをもとにAccountEntityの取得
-		Account account = accountService.findAccountByName(name);
-				
+	public MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> images) {		
 		//Formから画像を受け取った場合の処理
 		if(images != null && !images.isEmpty()) {
 			/*ここでMultipartFile型のDTOをUUIDで自動生成した文字列とファイル名(MultipartFile.getOriginalFileName()で取得可)を
@@ -156,7 +151,8 @@ public class MessageServiceImpl implements MessageService {
 			throw new AccessDeniedException("このデータを編集する権限がありません");
 		}
 		
-		imageService.deleteImageByMessage(message.getId());
+		
+		imageService.deleteImageByMessage(messageId);
 		
 		messageMapper.deleteMessageById(messageId, message.getUpdatedAt());
 		

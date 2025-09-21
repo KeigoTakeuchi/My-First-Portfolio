@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
-import com.example.demo.entity.LoginUser;
+import com.example.demo.entity.Account;
 import com.example.demo.service.AccountService;
 import com.example.demo.service.ImageService;
 import com.example.demo.service.MessageService;
@@ -66,15 +67,19 @@ public class MessageController {
 	//新規投稿処理
 	@PostMapping("/messages")
 	public ResponseEntity<MessageViewDTO> registerMessage(
-			@Validated @RequestPart("") MessageFormDTO messageFormDTO,
-			@RequestPart("") List<MultipartFile> images,
+			@Validated @RequestPart("jsonFile") MessageFormDTO messageFormDTO,
+			@RequestPart(value= "file" ,required = false) List<MultipartFile> images,
 			Authentication authentication){
 		
-		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+		Jwt jwt = (Jwt)authentication.getPrincipal();
 		
-		String username = loginUser.getUsername();
+		Long longId = jwt.getClaim("id");
 		
-		MessageViewDTO viewDTO = messageService.postMessage(messageFormDTO,username,images);
+		Integer accountId = Math.toIntExact(longId);
+		
+		Account account = accountService.getAccount(accountId);
+		
+		MessageViewDTO viewDTO = messageService.postMessage(messageFormDTO,account,images);
 		
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequestUri()
@@ -85,28 +90,28 @@ public class MessageController {
 		return ResponseEntity.created(location).build();
 	}
 	
-	@PutMapping("/messages/{id}")
+	@PutMapping("/messages/{messageId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void updateMessage(@PathVariable Integer messageId,
 			@Validated @RequestBody MessageFormDTO formDTO,
 			Authentication authentication
 			) {
 		
-		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+		Jwt jwt = (Jwt)authentication.getPrincipal();
 		
-		String userName = loginUser.getUsername();
+		String userName = jwt.getSubject();
 		
 		messageService.changeMessage(formDTO,messageId,userName);
 	}
 	
-	@DeleteMapping("/messages/{id}")
+	@DeleteMapping("/messages/{messageId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteMessage(@PathVariable Integer messageId,
 			Authentication authentication) {
 		
-		LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+		Jwt jwt = (Jwt)authentication.getPrincipal();
 		
-		String userName = loginUser.getUsername();
+		String userName = jwt.getSubject();
 		messageService.deleteMessages(messageId,userName);
 	}
 }

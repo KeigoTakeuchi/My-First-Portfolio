@@ -39,9 +39,14 @@ public class JwtService {
 		
 		List<String> stringAuthority = new ArrayList<>();
 		
+		System.out.println("【DEBUG POINT 1】:LoginUserからの権限取得" + loginUser.getAuthorities());
+		
 		for (GrantedAuthority authority : loginUser.getAuthorities()) {
 			stringAuthority.add(authority.getAuthority());
 		}
+		
+		System.out.println("【DEBUG POINT 2】:変換されたstringAuthorityからの権限取得" + stringAuthority);
+		
 		return generateToken(loginUser.getUsername(),stringAuthority,loginUser.getId());
 	}
 	
@@ -84,6 +89,8 @@ public class JwtService {
 		//上記のリフレッシュトークンバージョン
 		Instant refreshTokenExpiry = now.plus(jwtConfig.getRefreshExpiration(),ChronoUnit.MILLIS);
 		
+		
+		System.out.println("【DEBUG POINT 3】:Roleからの権限取得" + roles);
 		//権限をクレームとしてラッピング(アクセストークンに含めたい権限)
 		Map<String,Object> claims = new HashMap<>();
 		

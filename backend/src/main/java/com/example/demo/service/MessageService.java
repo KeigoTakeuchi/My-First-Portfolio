@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
+import com.example.demo.entity.Account;
 
 public interface MessageService {
 
@@ -19,7 +20,7 @@ public interface MessageService {
 	
 	List<Integer> getMessageIdByAccountId(Integer accountId);
 	
-	MessageViewDTO postMessage(MessageFormDTO messageForm,String name,List<MultipartFile> images) ;
+	MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> images) ;
 	
 	void changeMessage(MessageFormDTO messageForm,Integer messageId,String name);
 

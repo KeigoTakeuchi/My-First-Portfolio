@@ -22,7 +22,7 @@ public class AccountUpdateFormDTO {
 	private  int id;
 	
 	@Size(min = 8,max = 20,message = "IDは{min}～{max}文字以内にしてください")
-	@Pattern(regexp = "[a-z0-9]",message = "IDは小文字の半角英字、半角数字のみにしてください")
+	@Pattern(regexp = "^[a-z0-9]+$",message = "IDは小文字の半角英字、半角数字のみにしてください")
 	@UnusedName
 	private String inputName;
 	

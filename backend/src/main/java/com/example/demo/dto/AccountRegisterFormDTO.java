@@ -19,12 +19,12 @@ import lombok.NoArgsConstructor;
 public class AccountRegisterFormDTO {
 
 	@Size(min = 8,max = 20,message = "IDは{min}～{max}文字以内にしてください")
-	@Pattern(regexp = "[a-z0-9]",message = "IDは小文字の半角英字、半角数字のみにしてください")
+	@Pattern(regexp = "^[a-z0-9]+$",message = "IDは小文字の半角英字、半角数字のみにしてください")
 	@UnusedName
 	private String inputName;
 	
 	@Size(min = 8,max = 20,message = "パスワードは{min}～{max}文字以内にしてください")
-	@Pattern(regexp = "[a-z0-9]",message = "パスワードは小文字の半角英字、半角数字のみにしてください")
+	@Pattern(regexp = "^[a-z0-9]+$",message = "パスワードは小文字の半角英字、半角数字のみにしてください")
 	private String inputPassword;
 	
 	@Size(min = 1,max = 50,message = "表示名は{min}～{max}文字以内にしてください")

@@ -57,7 +57,11 @@ public class AuthenticationService {
 	@Transactional(readOnly = true)
 	public AuthenticationResponse authenticate(LoginFormDTO formDTO) {
 		
-		//ここでLoginフォームから入力された情報をSpring Security内で認証をしている
+		/*ここでLoginフォームから入力された情報をSpring Security内で認証をしている
+		 * JWTはステートレスに認証情報を保持するためのトークンでしかないので、JWTを認証に
+		 * 利用したりはしなくて、あくまでSpringSecurityのオーソドックスな認証後に
+		 * 初めて活躍するものという認識
+		 */
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(
 						formDTO.getInputName(),

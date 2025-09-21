@@ -3,14 +3,12 @@ package com.example.demo.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -39,7 +37,7 @@ public class SecurityConfig {
 
 	private final JwtKeyProperties jwtKeyProperties;
 	
-	private final UserDetailsService userDetailsService;
+	//private final UserDetailsService userDetailsService;
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,9 +49,10 @@ public class SecurityConfig {
 			.disable())
 
 			.authorizeHttpRequests(authz -> authz
-			.requestMatchers("/api/authenticate/","/api/register/").permitAll()
-			.requestMatchers(HttpMethod.GET,"/api/messages/","/api/users/").authenticated()
-			.requestMatchers("/api/messages/","/api/users/").hasAnyRole("USER","ADMIN")
+			.requestMatchers("/api/authenticate","/api/register").permitAll()
+			.requestMatchers("/api/refreshToken").authenticated()
+			.requestMatchers(HttpMethod.GET,"/api/messages/**","/api/users/**").authenticated()
+			.requestMatchers("/api/messages/**","/api/users/**","/api/debug/**").hasAnyRole("USER","ADMIN")
 			.requestMatchers("/api/**").hasRole("ADMIN")
 			.anyRequest().denyAll())
 			
@@ -72,16 +71,12 @@ public class SecurityConfig {
 		return http.build();
 	}
 	
-	@Bean
-	public AuthenticationProvider authenticationProvider(PasswordEncoder passwordencoder) {
-		
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userDetailsService);
-		provider.setPasswordEncoder(passwordencoder);
-		return provider;
-	}
 	
 	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
+	}
+	
 	private CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfig = new CorsConfiguration();
 		corsConfig.addAllowedMethod(CorsConfiguration.ALL);
@@ -105,7 +100,7 @@ public class SecurityConfig {
 		//ここでの名前は後に生成するJWTでのclaims名と一致させる
 		grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
 		//@PreAuthorizeでhasRoleを利用できるようになる
-		grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+		grantedAuthoritiesConverter.setAuthorityPrefix("");
 		
 		JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);

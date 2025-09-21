@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 
 @Component
-@ConfigurationProperties(prefix = "jwt")
 @Data
+@ConfigurationProperties(prefix = "jwt")
 public class JwtConfig {
 
 	//Tokenの有効期限
