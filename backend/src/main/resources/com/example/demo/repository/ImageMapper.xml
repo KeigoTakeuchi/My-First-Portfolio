@@ -88,6 +88,21 @@
 			#{messageId}
 			)
 	</insert>
+	<insert id="insertImages" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="images.id">
+		INSERT INTO images(
+			name,
+			file_path,
+			message_id
+			)
+		VALUES
+		<foreach collection="list" item="image" separator=",">
+			(
+			#{image.name},
+			#{image.filePath},
+			#{image.messageId}
+			)
+		</foreach>
+	</insert>
 	<update id="updatePathName" parameterType="com.example.demo.entity.Image">
 		UPDATE images
 		SET file_path = #{filePath}

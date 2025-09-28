@@ -18,5 +18,7 @@ public class Image {
 	
 	private String filePath;
 	
+	private int messageId;
+	
 	private Message message;
 }

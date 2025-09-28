@@ -14,11 +14,13 @@ public interface ImageService {
 	
 	void postImage(Image image,Integer messageId);
 	
+	void postAllImages(List<Image> images);
+	
 	void changePathName(Image image);
 	
 	void deleteImage(Image image);
 	
 	void deleteImageByMessage(Integer messageId);
 	
-	void deleteImagesByAccountId(Integer accountId);
+	void deleteImagesByMessageIds(List<Integer> messageIds);
 }

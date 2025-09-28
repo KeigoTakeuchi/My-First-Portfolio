@@ -48,7 +48,7 @@ public class AccountController {
 
 		Integer accountId = Math.toIntExact(longAccountId); 
 		
-		if( accountId != id) {
+		if(!accountId.equals(id)) {
 			throw new AccessDeniedException("他のユーザーの情報を更新はできません");
 		}
 		accountService.changeAccount(id,accountForm);
@@ -66,7 +66,7 @@ public class AccountController {
 
 		Integer accountId = Math.toIntExact(longAccountId); 
 		
-		if(accountId != id) {
+		if(!accountId.equals(id)) {
 			throw new AccessDeniedException("他のユーザーのパスワードは変更できません");
 		}
 		accountService.changePassword(updateForm);
@@ -83,7 +83,7 @@ public class AccountController {
 
 		Integer accountId = Math.toIntExact(longAccountId); 
 		
-		if(accountId != id) {
+		if(!accountId.equals(id)) {
 			throw new AccessDeniedException("他のユーザーの情報は変更できません");
 		}
 		accountService.deleteAccount(id);

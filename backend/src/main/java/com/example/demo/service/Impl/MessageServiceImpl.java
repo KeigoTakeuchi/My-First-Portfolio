@@ -1,9 +1,13 @@
 package com.example.demo.service.Impl;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
 import com.example.demo.entity.Account;
+import com.example.demo.entity.Image;
 import com.example.demo.entity.Message;
 import com.example.demo.helper.DTOConverter;
 import com.example.demo.repository.MessageMapper;
@@ -27,6 +32,7 @@ public class MessageServiceImpl implements MessageService {
 
 	private final MessageMapper messageMapper;
 	private final ImageService imageService;
+	private final StorageService storageService;
 	
 	public List<MessageViewDTO> getAllMessages(){
 		
@@ -61,6 +67,7 @@ public class MessageServiceImpl implements MessageService {
 		return messageViewList;
 	}
 	
+	//修正の必要ありかも(今後)
 	//Messageの詳細画面にはAccount,ImageのDTO情報をもつ
 	public MessageViewDTO getMessage(Integer id) {
 		Message message = messageMapper.getMessageById(id);
@@ -92,32 +99,55 @@ public class MessageServiceImpl implements MessageService {
 	}
 	
 	//Valid通過後のハンドラメソッド内でScopeからAccountIdを取得する
-	public MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> images) {		
-		//Formから画像を受け取った場合の処理
-		if(images != null && !images.isEmpty()) {
-			/*ここでMultipartFile型のDTOをUUIDで自動生成した文字列とファイル名(MultipartFile.getOriginalFileName()で取得可)を
-			 * 組み合わせたオブジェクトキーを紐づけてfilePathプロパティに格納(例:/images/user/afhd2442jlnj24k.jpg)
-			 * して、MessageForm内のList<MultipartFile> imagesをImageEntityとして補完していき、完成したImageEntityのListを保持しておく
-			 */
-			/*for (MultipartFile multiFile : images) {
-				multiFile.getOriginalFilename()
-			}
-			*/
-		}
-		//取得したAccountEntityとFormから受け取った変数をもとにMessageEntityへ変換(Imageは別で変換させる)
+	public MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> images){
+		
+		//ここではImageをmessageEntityに変換していない(中身が空)
 		Message message = DTOConverter.convertToMessage(messageForm, account);
 
 		messageMapper.insertMessage(message.getAccount().getId(),message);
 		
-		//上で作成したList型ImageEntityからImageEntity抜き出してDB保存(ここではList型をimagesとして仮作成)
-		/*for (Image image : images) {
-			imageMapper.insertImage(message.getId(),image);
+		
+		//Formから画像を受け取った場合の処理
+		if(images != null && images.size() > 4) {
+			throw new IllegalArgumentException("画像は4枚までです"); 
 		}
-		*/
+		
+		//画像登録処理
+		List<Image> imageEntities = new ArrayList<>();
+		
+		if (images != null) {
+			
+			for (MultipartFile image : images) {
+				
+				if (image.isEmpty()) continue ;
+				
+				String ext = FilenameUtils.getExtension(image.getOriginalFilename());
+				//uuidはimageオブジェクト一つに対して生成
+				String uuid = UUID.randomUUID().toString();
+				String objectPath = String.format("messages/%d/%d/%s%s",account.getId(),message.getId(), uuid, ext);
+				byte[] imageBytes = convertFileToBytes(image);
+				
+				//supabaseへ画像をアップロード
+				storageService.upload(objectPath, imageBytes, image.getContentType());
+				
+				//metadataをDBに保存
+				Image imageEntity = Image.builder()
+						.name(image.getName())
+						.filePath(objectPath)
+						.messageId(message.getId())
+						.build();
+				
+				imageEntities.add(imageEntity);
+			}
+			imageService.postAllImages(imageEntities);
+		}
+		
+		message.setImages(imageEntities);
 		MessageViewDTO viewDTO = DTOConverter.convertToMessageViewDTO(message);
 		
 		return viewDTO;
 	}
+	
 	/*ControllerでFormページで送られてきたFormDTOとmessageID(@PAthVariable)をもとにMessageEntityを完成させて
 	 * MessageMapperに渡してあげる
 	 */
@@ -152,6 +182,16 @@ public class MessageServiceImpl implements MessageService {
 		}
 		
 		
+		if(!message.getImages().isEmpty() && message.getImages() != null) {
+			
+			List<Image> images = message.getImages();
+			
+			for(Image image : images) {
+				
+				storageService.delete(image.getFilePath());
+			}
+		}
+		
 		imageService.deleteImageByMessage(messageId);
 		
 		messageMapper.deleteMessageById(messageId, message.getUpdatedAt());
@@ -159,6 +199,32 @@ public class MessageServiceImpl implements MessageService {
 	}
 	
 	public void deleteAllMessagesByAccount(Integer accountId) {
+		
+		List<Integer> messageIds = messageMapper.getMessageIdByAccountId(accountId);
+		
+		if(messageIds != null && messageIds.isEmpty()) {
+			
+			List<Image> images = imageService.getImagesByAccount(accountId);
+			
+			//supabase storage内の画像削除
+			for (Image image : images) {
+				storageService.delete(image.getFilePath());
+			}
+			
+			//DB内の画像metadata削除
+			imageService.deleteImagesByMessageIds(messageIds);
+		}
+		
+		//Messageの全削除
 		messageMapper.deleteAllMessagesByAccountId(accountId);
+	}
+	
+	public byte[] convertFileToBytes(MultipartFile file) {
+		try {
+			byte[] bytes = file.getBytes();
+			return bytes;
+		}catch (IOException e) {
+			throw new UncheckedIOException("バイト変換に失敗しました",e);
+		}
 	}
 }

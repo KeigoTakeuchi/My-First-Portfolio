@@ -1,6 +1,5 @@
 package com.example.demo.repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -19,11 +18,13 @@ public interface ImageMapper {
 	
 	Integer insertImage(@Param("messageId")Integer messageId,Image image);
 	
+	Integer insertImages(List<Image> images);
+	
 	Integer updatePathName(Image image);
 	
-	Integer deleteImageById(@Param("id")Integer id, @Param("updatedAt")LocalDateTime updatedAt);
+	Integer deleteImageById(@Param("id")Integer id);
 	
-	Integer deleteImagesByMessageId(@Param("messageId")Integer messageId,@Param("updatedAt") LocalDateTime updatedAt);
+	Integer deleteImagesByMessageId(@Param("messageId")Integer messageId);
 	
 	Integer deleteImagesByMessageIds(List<Integer> messageId);
 }
