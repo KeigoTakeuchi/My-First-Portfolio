@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.example.demo.validate.ConfirmOldPassword;
 import com.example.demo.validate.ConfirmPassword;
 import com.example.demo.validate.UnusedPassword;
 
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @UnusedPassword
 @ConfirmPassword
+@ConfirmOldPassword
 public class AccountPasswordUpdateForm {
 
 	private int id;

@@ -15,6 +15,7 @@ public class ConfirmPasswordValidator implements ConstraintValidator<ConfirmPass
 	public boolean isValid(AccountPasswordUpdateForm value,ConstraintValidatorContext context) {
 		
 		if(value.getInputConfirmPassword() == null || value.getInputNewPassword() == null) {
+			//nullはNotBlankに任せるためtrueで返す
 			return true;
 		}
 		

@@ -3,6 +3,8 @@ package com.example.demo.service.Impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ import reactor.core.publisher.Flux;
 @Transactional
 public class StorageService {
 
+	//デバッグ
+	private static final Logger logger = LoggerFactory.getLogger(StorageService.class);
+	
 	private final String bucket;
 	private final WebClient webClient;
 	private final String baseUrl;
@@ -35,7 +40,7 @@ public class StorageService {
 			@Value("${supabase.url}") String supabaseUrl,
 			@Value("${supabase.bucket}") String bucket,
 			@Value("${supabase.service-key}") String supabaseKey)  {
-		this.baseUrl = supabaseUrl + "storage/v1";
+		this.baseUrl = supabaseUrl + "/storage/v1";
 		this.bucket = bucket;
 		this.webClient = WebClient.builder()
 				.baseUrl(baseUrl)
@@ -44,31 +49,51 @@ public class StorageService {
 				.build();
 	}
 	
-	public void upload(String objectPath, byte[] bytes,String contentType) {
+	public String upload(Integer accountId,Integer messageId,String uuid,String ext, byte[] bytes,String contentType) {
+		
+		//logger.info("supabase storageにupload処理を行います... Content-Typeは: {}",contentType);
+		
+		String objectPath = String.format("%d/%d/%s.%s",accountId,messageId, uuid, ext);
 		try {
 			webClient.post()
-				.uri("/object/{bucket}/{path}",bucket,objectPath)
+				.uri("/object/{bucket}/{objectPath}",bucket,objectPath)
 				.contentType(MediaType.parseMediaType(contentType == null ? "application/octet-stream" : contentType))
 				.bodyValue(bytes)
 				.retrieve()
 				.onStatus(status -> !status.is2xxSuccessful(),ClientResponse::createException)
 				.bodyToMono(Void.class)
 				.block();
+			
+			return this.publicUrl(objectPath);
 		}catch (WebClientResponseException e) {
 			throw new StorageException("Failed to upload objects" + e);
 		}
 	}
 	
-	public void delete(String objectPath) {
+	public void delete(String publicPath) {
+		
+		String prefix = "/object/public/" + this.bucket + "/";
+		
+		int startInt = publicPath.indexOf(prefix);
+		
+		if(startInt == -1) {
+			throw new IllegalArgumentException("保存されたURLの形式が不正です。次の形を期待しています: " + prefix);
+		}
+		//完全なurlから、prefixで指定した文字列の最後尾からurlの最後まで、抽出している(以下の引数は抽出開始位置の指定)
+		String objectPath = publicPath.substring(startInt + prefix.length());
+
 		try {
 			webClient.delete()
-				.uri("object/{bucket}/{path}" ,bucket,objectPath)
+				.uri(uriBuilder -> uriBuilder
+						.path("/object/{bucket}/")
+						.path(objectPath)
+						.build(bucket))
 				.retrieve()
 				.onStatus(status -> !status.is2xxSuccessful(),ClientResponse::createException)
 				.bodyToMono(Void.class)
 				.block();
 		}catch (WebClientResponseException e) {
-			throw new StorageException("Failed to delete objects" + e); 
+			throw new StorageException("Failed to delete objects. Status :" + e.getStatusCode() + ", Body :" + e.getResponseBodyAsString(), e); 
 		}
 	}
 	

@@ -5,8 +5,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 	display_name VARCHAR(50) UNIQUE NOT NULL,
 	authority VARCHAR(20) NOT NULL CHECK (authority IN ('ADMIN','USER','UNKNOWN')),
 	created_at TIMESTAMP NOT NULL,
-	updated_at TIMESTAMP NOT NULL,
-	deleted_at TIMESTAMP
+	updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS messages (

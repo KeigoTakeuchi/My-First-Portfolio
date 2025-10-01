@@ -101,7 +101,6 @@ public class DTOConverter {
 				.authority(account.getAuthority())
 				.createdAt(account.getCreatedAt())
 				.updatedAt(account.getUpdatedAt())
-				.deletedAt(account.getDeletedAt())
 				.build();
 		
 		return viewDTO;

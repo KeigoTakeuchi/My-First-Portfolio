@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
+	
+	//デバッグ
+	private static final Logger logger = LoggerFactory.getLogger(StorageService.class);
 
 	private final MessageMapper messageMapper;
 	private final ImageService imageService;
@@ -95,7 +100,15 @@ public class MessageServiceImpl implements MessageService {
 	}
 	
 	public List<Integer> getMessageIdByAccountId(Integer accountId){
-		return messageMapper.getMessageIdByAccountId(accountId);
+		List<Message> messages = messageMapper.getMessageIdByAccountId(accountId);
+		
+		List<Integer> messageIds = new ArrayList<>();
+		
+		for (Message message : messages) {
+			messageIds.add(message.getId());
+		}
+		
+		return messageIds;
 	}
 	
 	//Valid通過後のハンドラメソッド内でScopeからAccountIdを取得する
@@ -124,11 +137,12 @@ public class MessageServiceImpl implements MessageService {
 				String ext = FilenameUtils.getExtension(image.getOriginalFilename());
 				//uuidはimageオブジェクト一つに対して生成
 				String uuid = UUID.randomUUID().toString();
-				String objectPath = String.format("messages/%d/%d/%s%s",account.getId(),message.getId(), uuid, ext);
 				byte[] imageBytes = convertFileToBytes(image);
 				
+				//logger.info("storageService呼び出し前のimage contentType :{}",image.getContentType());
+				
 				//supabaseへ画像をアップロード
-				storageService.upload(objectPath, imageBytes, image.getContentType());
+				String objectPath = storageService.upload(account.getId(),message.getId(),uuid,ext, imageBytes, image.getContentType());
 				
 				//metadataをDBに保存
 				Image imageEntity = Image.builder()
@@ -190,28 +204,30 @@ public class MessageServiceImpl implements MessageService {
 				
 				storageService.delete(image.getFilePath());
 			}
+			
+			imageService.deleteImageByMessage(messageId);
 		}
 		
-		imageService.deleteImageByMessage(messageId);
 		
 		messageMapper.deleteMessageById(messageId, message.getUpdatedAt());
 		
 	}
 	
+	//要修正:messageIdsのnullチェックはできてるが、imageのチェックができてない
 	public void deleteAllMessagesByAccount(Integer accountId) {
 		
-		List<Integer> messageIds = messageMapper.getMessageIdByAccountId(accountId);
+		List<Image> images = imageService.getImagesByAccount(accountId);
 		
-		if(messageIds != null && messageIds.isEmpty()) {
+		if(images != null && !images.isEmpty()) {
 			
-			List<Image> images = imageService.getImagesByAccount(accountId);
-			
-			//supabase storage内の画像削除
-			for (Image image : images) {
+			for(Image image : images) {
 				storageService.delete(image.getFilePath());
-			}
+			}	
+		}
+		
+		List<Integer> messageIds = this.getMessageIdByAccountId(accountId);
 			
-			//DB内の画像metadata削除
+		if(messageIds != null && !messageIds.isEmpty()) {
 			imageService.deleteImagesByMessageIds(messageIds);
 		}
 		

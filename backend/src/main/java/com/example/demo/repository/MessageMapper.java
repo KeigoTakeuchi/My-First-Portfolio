@@ -19,7 +19,7 @@ public interface MessageMapper {
 	
 	List<Message> getMessagesByWord(@Param("searchQuery") String word);
 	
-	List<Integer> getMessageIdByAccountId(@Param("accountId") Integer accountId);
+	List<Message> getMessageIdByAccountId(@Param("accountId") Integer accountId);
 	
 	Integer insertMessage(@Param("accountId") Integer accountId ,Message message);
 	

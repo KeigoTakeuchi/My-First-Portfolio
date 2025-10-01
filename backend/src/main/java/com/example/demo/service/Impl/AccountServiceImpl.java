@@ -66,9 +66,18 @@ public class AccountServiceImpl implements AccountService {
 		/*Accountが削除または存在しない場合の例外処理はあとで実装予定
 		*/
 		Account account = accountMapper.getAccountById(id);
-		//Account account = DTOConverter.convertToAccountByUpdateDTO(accountForm);
-		account.setName(accountForm.getInputName());
-		account.setDisplayName(accountForm.getInputDisplayName());
+		
+		//入力のあったフィールド(変更したいフィールド)のみupdateさせる為の処理
+		if(accountForm.getInputName() != null && !accountForm.getInputName().isEmpty()) {
+			
+			account.setName(accountForm.getInputName());
+			
+		}
+		if(accountForm.getInputDisplayName() != null && !accountForm.getInputDisplayName().isEmpty()) {
+			
+			account.setDisplayName(accountForm.getInputDisplayName());
+			
+		}
 		accountMapper.updateAccount(account);
 		return ;
 	}

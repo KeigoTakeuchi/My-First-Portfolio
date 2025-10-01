@@ -15,7 +15,6 @@
 			<result property="content" column="message_content"/>
 			<result property="createdAt" column="message_created_at"/>
 			<result property="updatedAt" column="message_updated_at"/>
-			<result property="accountId" column="account_id"/>
 		</association>
 	</resultMap>
 	<resultMap id="imageWithAllDetailsResultMap" type="com.example.demo.entity.Image" extends="imageWithMessageResultMap">
@@ -27,7 +26,6 @@
 			<result property="authority" column="authority" javaType="com.example.demo.entity.Role"/>
 			<result property="createdAt" column="account_created_at" />
 			<result property="updatedAt" column="account_updated_at" />
-			<result property="deletedAt" column="account_deleted_at" />
 		</association>
 	</resultMap>
 	
@@ -119,8 +117,8 @@
 	<delete id="deleteImagesByMessageIds" parameterType="java.util.List">
 		DELETE FROM images
 		WHERE message_id IN
-		<foreach collection="list" item="id" open="(" separator="," close=")" >
-		 #{id}
+		<foreach collection="list" item="messageId" open="(" separator="," close=")" >
+		 #{messageId}
 		</foreach>
 	</delete>
 </mapper>

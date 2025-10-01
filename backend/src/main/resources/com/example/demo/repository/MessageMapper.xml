@@ -19,7 +19,6 @@
 			<result column="authority" property="authority" javaType="com.example.demo.entity.Role"/>
 			<result column="account_created_at" property="createdAt"/>
 			<result column="account_updated_at" property="updatedAt"/>
-			<result column="account_deleted_at" property="deletedAt"/>
 		</association>
 	</resultMap>
 	
@@ -46,7 +45,6 @@
 		 a.authority,
 		 a.created_at AS account_created_at,
 		 a.updated_at AS account_updated_at,
-		 a.deleted_at AS account_deleted_at,
 		 <!-- Image-->
 		 i.id AS image_id,
 		 i.name AS image_name,
@@ -71,8 +69,7 @@
 		 a.display_name AS display_name,
 		 a.authority,
 		 a.created_at AS account_created_at,
-		 a.updated_at AS account_updated_at,
-		 a.deleted_at AS account_deleted_at
+		 a.updated_at AS account_updated_at
 		FROM messages AS m
 		JOIN accounts AS a ON m.account_id = a.id
 		WHERE m.account_id = #{id} 
@@ -91,8 +88,7 @@
 		 a.display_name AS display_name,
 		 a.authority,
 		 a.created_at AS account_created_at,
-		 a.updated_at AS account_updated_at,
-		 a.deleted_at AS account_deleted_at
+		 a.updated_at AS account_updated_at
 		FROM messages AS m
 		JOIN accounts AS a ON m.account_id = a.id
 		WHERE m.title LIKE #{searchQuery}
@@ -112,18 +108,15 @@
 		 a.display_name AS display_name,
 		 a.authority,
 		 a.created_at AS account_created_at,
-		 a.updated_at AS account_updated_at,
-		 a.deleted_at AS account_deleted_at
+		 a.updated_at AS account_updated_at
 		FROM messages AS m
 		JOIN accounts AS a ON m.account_id = a.id
-		WHERE a.deleted_at IS NULL
 	</select>
 	<select id="getMessageIdByAccountId" resultMap="messageWithAccountResultMap">
 		SELECT m.id
 		FROM messages AS m
 		JOIN accounts AS a ON m.account_id = a.id
-		WHERE a.deleted_at IS NULL 
-		AND m.account_id = #{accountId} 
+		WHERE m.account_id = #{accountId} 
 	</select>
 	<insert id="insertMessage" parameterType="com.example.demo.entity.Message" useGeneratedKeys="true" keyProperty="message.id">
 		INSERT INTO messages (

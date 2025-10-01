@@ -26,8 +26,6 @@ public class AccountUpdateFormDTO {
 	@UnusedName
 	private String inputName;
 	
-	private String password;
-	
 	@Size(min = 1,max = 50,message = "表示名は{min}～{max}文字以内にしてください")
 	@UnusedDisplayName
 	private String inputDisplayName;

@@ -69,6 +69,7 @@ public class AccountController {
 		if(!accountId.equals(id)) {
 			throw new AccessDeniedException("他のユーザーのパスワードは変更できません");
 		}
+		updateForm.setId(accountId);
 		accountService.changePassword(updateForm);
 	}
 	
@@ -84,6 +85,7 @@ public class AccountController {
 		Integer accountId = Math.toIntExact(longAccountId); 
 		
 		if(!accountId.equals(id)) {
+			System.out.println("DEBUG: 例外補足でException投げられる前");
 			throw new AccessDeniedException("他のユーザーの情報は変更できません");
 		}
 		accountService.deleteAccount(id);
