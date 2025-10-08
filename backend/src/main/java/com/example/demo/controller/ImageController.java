@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.ImageService;
-import com.example.demo.service.MessageService;
-import com.example.demo.service.Impl.StorageService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,8 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class ImageController {
 	
 	private final ImageService imageService;
-	private final MessageService messageService;
-	private final StorageService storageService;
+
 	
 	@GetMapping("/images/{id}")
 	public ResponseEntity<String> getImage(@PathVariable Integer id){

@@ -2,6 +2,7 @@ package com.example.demo.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -11,7 +12,7 @@ import com.example.demo.entity.Message;
 @Mapper
 public interface MessageMapper {
 	
-	Message getMessageById(Integer id);
+	Optional<Message> getMessageById(Integer id);
 	
 	List<Message> getAllMessagesByAccountId(Integer id);
 	

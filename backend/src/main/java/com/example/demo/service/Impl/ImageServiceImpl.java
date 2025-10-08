@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.entity.Image;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.ImageMapper;
 import com.example.demo.service.ImageService;
 
@@ -22,7 +23,10 @@ public class ImageServiceImpl implements ImageService {
 	@Override
 	public Image getImage(Integer id) {
 		// TODO 自動生成されたメソッド・スタブ
-		return imageMapper.getImageById(id);
+		Image image = imageMapper.getImageById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Imageが見つかりません。 ID : " + id));
+		
+		return image;
 	}
 
 	@Override

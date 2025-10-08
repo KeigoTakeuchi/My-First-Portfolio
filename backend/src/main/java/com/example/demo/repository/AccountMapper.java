@@ -1,5 +1,7 @@
 package com.example.demo.repository;
 
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.demo.entity.Account;
@@ -7,11 +9,11 @@ import com.example.demo.entity.Account;
 @Mapper
 public interface AccountMapper {
 	
-	Account getAccountById(Integer id);
+	Optional<Account> getAccountById(Integer id);
 	
-	Account getAccountByName(String name);
+	Optional<Account> getAccountByName(String name);
 	
-	Account getAccountByDisplayName(String displayName);
+	Optional<Account> getAccountByDisplayName(String displayName);
 	
 	Integer insertAccount(Account account);
 	

@@ -8,8 +8,10 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+@Component
 public class MediaTypeImageValidator implements ConstraintValidator<MediaTypeImage,MultipartFile>{
 
 	@Override

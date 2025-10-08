@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.AccountPasswordUpdateForm;
@@ -33,12 +32,11 @@ public class AccountController {
 	
 	@GetMapping("/users/{id}")
 	public ResponseEntity<AccountViewDTO> getAccount(@PathVariable Integer id){
-		return ResponseEntity.ok(accountService.getAccountForView(id));
+		return new ResponseEntity<>(accountService.getAccountForView(id),HttpStatus.OK);
 	}
 	
 	@PutMapping("/users/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateAccount(@PathVariable Integer id,
+	public ResponseEntity<String> updateAccount(@PathVariable Integer id,
 			@Validated @RequestBody AccountUpdateFormDTO accountForm,
 			Authentication authentication) {
 		
@@ -46,17 +44,19 @@ public class AccountController {
 		
 		Long longAccountId = jwt.getClaim("id");
 
-		Integer accountId = Math.toIntExact(longAccountId); 
+		Integer loginAccountId = Math.toIntExact(longAccountId); 
 		
-		if(!accountId.equals(id)) {
-			throw new AccessDeniedException("他のユーザーの情報を更新はできません");
+		if(!loginAccountId.equals(id)) {
+			throw new AccessDeniedException("他のユーザーの情報は更新できません。");
 		}
+		
 		accountService.changeAccount(id,accountForm);
+		
+		return new ResponseEntity<>("データを更新しました",HttpStatus.NO_CONTENT);
 	}
 	
 	@PutMapping("/users/{id}/password")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updatePassword(@PathVariable Integer id,
+	public ResponseEntity<String> updatePassword(@PathVariable Integer id,
 			@Validated @RequestBody AccountPasswordUpdateForm updateForm,
 			Authentication authentication) {
 		
@@ -64,31 +64,34 @@ public class AccountController {
 		
 		Long longAccountId = jwt.getClaim("id");
 
-		Integer accountId = Math.toIntExact(longAccountId); 
+		Integer loginAccountId = Math.toIntExact(longAccountId); 
 		
-		if(!accountId.equals(id)) {
-			throw new AccessDeniedException("他のユーザーのパスワードは変更できません");
+		if(!loginAccountId.equals(id)) {
+			throw new AccessDeniedException("他のユーザーの情報は更新できません。");
 		}
-		updateForm.setId(accountId);
-		accountService.changePassword(updateForm);
+		
+		accountService.changePassword(id,updateForm);
+		
+		return new ResponseEntity<>("データを更新しました",HttpStatus.NO_CONTENT);
 	}
 	
 	@DeleteMapping("/users/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteAccount(@PathVariable Integer id,
+	public ResponseEntity<String> deleteAccount(@PathVariable Integer id,
 			Authentication authentication) {
 		
 		Jwt jwt = (Jwt)authentication.getPrincipal();
 		
 		Long longAccountId = jwt.getClaim("id");
 
-		Integer accountId = Math.toIntExact(longAccountId); 
+		Integer loginAccountId = Math.toIntExact(longAccountId); 
 		
-		if(!accountId.equals(id)) {
-			System.out.println("DEBUG: 例外補足でException投げられる前");
-			throw new AccessDeniedException("他のユーザーの情報は変更できません");
+		if(!loginAccountId.equals(id)) {
+			throw new AccessDeniedException("他のユーザーの情報は更新できません。");
 		}
+		
 		accountService.deleteAccount(id);
+		
+		return new ResponseEntity<>("データを削除しました",HttpStatus.NO_CONTENT);
 	}
 	
 	//Debug

@@ -24,11 +24,9 @@ public class LoginUserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// TODO 自動生成されたメソッド・スタブ
-		Account account = mapper.getAccountByName(username);
-		
-		if(account == null) {
-			throw new UsernameNotFoundException(username + "指定しているユーザー名は存在しません");
-		}
+		Account account = mapper.getAccountByName(username)
+				.orElseThrow(() -> new UsernameNotFoundException("指定しているユーザー名は存在しません。 Name : " + username));
+
 		List<GrantedAuthority> authorities = account.getAuthority().getAuthorities();
 		
 		return new LoginUser(account.getName(),account.getHashedPassword(),

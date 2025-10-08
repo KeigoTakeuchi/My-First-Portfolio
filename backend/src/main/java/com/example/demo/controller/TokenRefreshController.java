@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,12 +27,11 @@ public class TokenRefreshController {
 	
 	private final UserDetailsService userDetailsService;
 	
-	public record TokenRefreshResponse(String accessToken, String refreshToken) {
-	}
+	public record TokenRefreshResponse(String accessToken, String refreshToken) {}
 	
-	public record TokenRefreshRequest(String refreshToken) {
-	}
+	public record TokenRefreshRequest(String refreshToken) {}
 	
+	public record ErrorResponse(String message,String code) {}
 	
 	@PostMapping("/refresh-token")
 	public ResponseEntity<TokenRefreshResponse> refreshToken(
@@ -59,7 +59,7 @@ public class TokenRefreshController {
 			return ResponseEntity.ok(new TokenRefreshResponse(newJwtToken.token(),newJwtToken.refreshToken()));
 			
 		}catch (JwtException | BadCredentialsException e) {
-			return ResponseEntity.status(401).build();
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 	}
 }

@@ -20,7 +20,7 @@ public interface MessageService {
 	
 	List<Integer> getMessageIdByAccountId(Integer accountId);
 	
-	MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> images) ;
+	MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> files) ;
 	
 	void changeMessage(MessageFormDTO messageForm,Integer messageId,String name);
 

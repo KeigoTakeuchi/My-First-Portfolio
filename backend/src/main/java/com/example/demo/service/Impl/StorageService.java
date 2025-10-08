@@ -66,7 +66,7 @@ public class StorageService {
 			
 			return this.publicUrl(objectPath);
 		}catch (WebClientResponseException e) {
-			throw new StorageException("Failed to upload objects" + e);
+			throw new StorageException("Failed to upload objects. Status :" + e.getStatusCode() + ", Body :" + e.getResponseBodyAsString(),e);
 		}
 	}
 	
@@ -97,6 +97,7 @@ public class StorageService {
 		}
 	}
 	
+	//この機能(accountページからID取得して投稿された画像一覧表示)は実装するか悩み中
 	public Flux<String> getImagesUrl(Integer accountId,Integer messageId){
 		
 		String listPath = "messages/" + accountId + "/" + messageId;

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -26,7 +25,6 @@ import com.example.demo.dto.MessageFormDTO;
 import com.example.demo.dto.MessageViewDTO;
 import com.example.demo.entity.Account;
 import com.example.demo.service.AccountService;
-import com.example.demo.service.ImageService;
 import com.example.demo.service.MessageService;
 
 import lombok.RequiredArgsConstructor;
@@ -38,37 +36,50 @@ public class MessageController {
 	
 	private final AccountService accountService;
 	private final MessageService messageService;
-	private final ImageService imageService;
 	
 	//一覧表示(全ユーザー)
 	@GetMapping("/messages")
-	public List<MessageViewDTO> getMessages() {
-		return messageService.getAllMessages();
+	public ResponseEntity<List<MessageViewDTO>> getMessages() {
+		
+		List<MessageViewDTO> messageViewDTO = messageService.getAllMessages();
+		
+		//投稿が存在しない場合にも200 OKを返す
+		return new ResponseEntity<>(messageViewDTO,HttpStatus.OK);
 	}
 	
 	//詳細表示(一投稿)
 	@GetMapping("/messages/{id}")
 	public ResponseEntity<MessageViewDTO> getMessage(@PathVariable Integer id) {
-		return ResponseEntity.ok(messageService.getMessage(id));
+		
+		MessageViewDTO messageViewDTO = messageService.getMessage(id);
+
+		return new ResponseEntity<>(messageViewDTO,HttpStatus.OK);
+
 	}
 	
 	//一覧表示(特定のユーザー)
 	@GetMapping("/users/{id}/messages")
-	public List<MessageViewDTO> getMessageByAccount(@PathVariable Integer id){
-		return messageService.getAllMessagesByAccountId(id);
+	public ResponseEntity<List<MessageViewDTO>> getMessageByAccount(@PathVariable Integer id){
+		
+		List<MessageViewDTO> messageViewDTO = messageService.getAllMessagesByAccountId(id);
+		
+		return new ResponseEntity<>(messageViewDTO,HttpStatus.OK);
 	}
 	
 	//投稿検索
 	@GetMapping("/messages/search")
-	public List<MessageViewDTO> getMessagesByWord(@RequestParam("keyword") String word){
-		return messageService.searchMessagesByWord(word);
+	public ResponseEntity<List<MessageViewDTO>> getMessagesByWord(@RequestParam("keyword") String word){
+		
+		List<MessageViewDTO> messageViewDTO = messageService.searchMessagesByWord(word);
+		
+		return new ResponseEntity<>(messageViewDTO,HttpStatus.OK);
 	}
 	
 	//新規投稿処理
 	@PostMapping("/messages")
 	public ResponseEntity<MessageViewDTO> registerMessage(
 			@Validated @RequestPart("jsonFile") MessageFormDTO messageFormDTO,
-			@RequestPart(value= "file" ,required = false) List<MultipartFile> images,
+			@Validated @RequestPart(value= "file" ,required = false) List<MultipartFile> files,
 			Authentication authentication){
 		
 		Jwt jwt = (Jwt)authentication.getPrincipal();
@@ -79,7 +90,7 @@ public class MessageController {
 		
 		Account account = accountService.getAccount(accountId);
 		
-		MessageViewDTO viewDTO = messageService.postMessage(messageFormDTO,account,images);
+		MessageViewDTO viewDTO = messageService.postMessage(messageFormDTO,account,files);
 		
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequestUri()
@@ -91,8 +102,7 @@ public class MessageController {
 	}
 	
 	@PutMapping("/messages/{messageId}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void updateMessage(@PathVariable Integer messageId,
+	public ResponseEntity<String> updateMessage(@PathVariable Integer messageId,
 			@Validated @RequestBody MessageFormDTO formDTO,
 			Authentication authentication
 			) {
@@ -102,16 +112,19 @@ public class MessageController {
 		String userName = jwt.getSubject();
 		
 		messageService.changeMessage(formDTO,messageId,userName);
+		
+		return new ResponseEntity<>("messageが更新されました",HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/messages/{messageId}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteMessage(@PathVariable Integer messageId,
+	public ResponseEntity<String> deleteMessage(@PathVariable Integer messageId,
 			Authentication authentication) {
 		
 		Jwt jwt = (Jwt)authentication.getPrincipal();
 		
 		String userName = jwt.getSubject();
 		messageService.deleteMessages(messageId,userName);
+		
+		return new ResponseEntity<>("messageが削除されました",HttpStatus.NO_CONTENT);
 	}
 }

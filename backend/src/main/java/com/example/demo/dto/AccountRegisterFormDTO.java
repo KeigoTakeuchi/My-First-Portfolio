@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -20,14 +21,17 @@ public class AccountRegisterFormDTO {
 
 	@Size(min = 8,max = 20,message = "IDは{min}～{max}文字以内にしてください")
 	@Pattern(regexp = "^[a-z0-9]+$",message = "IDは小文字の半角英字、半角数字のみにしてください")
+	@NotBlank(message="IDを入力してください")
 	@UnusedName
 	private String inputName;
 	
 	@Size(min = 8,max = 20,message = "パスワードは{min}～{max}文字以内にしてください")
 	@Pattern(regexp = "^[a-z0-9]+$",message = "パスワードは小文字の半角英字、半角数字のみにしてください")
+	@NotBlank(message="パスワードを入力してください")
 	private String inputPassword;
 	
 	@Size(min = 1,max = 50,message = "表示名は{min}～{max}文字以内にしてください")
 	@UnusedDisplayName
+	@NotBlank(message="表示名を入力してください")
 	private String inputDisplayName;
 }

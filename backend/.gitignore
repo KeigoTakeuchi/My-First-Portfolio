@@ -200,4 +200,11 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
+#KeyStore files
+*.p12
+*.jks
+
+#Environment-specific properties
+application-*.properties
+
 # End of https://www.toptal.com/developers/gitignore/api/eclipse,java,react,vue,vuejs,gradle,maven,vercel,windows

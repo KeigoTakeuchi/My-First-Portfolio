@@ -15,9 +15,9 @@ public interface AccountService {
 	
 	Account findAccountByDisplayName(String displayName);
 	
-	void changeAccount(Integer id,AccountUpdateFormDTO accountForm);
+	void changeAccount(Integer targetId,AccountUpdateFormDTO accountForm);
 	
-	void changePassword(AccountPasswordUpdateForm passForm);
+	void changePassword(Integer targetId,AccountPasswordUpdateForm passForm);
 		
-	void deleteAccount(Integer accountId);
+	void deleteAccount(Integer targetId);
 }

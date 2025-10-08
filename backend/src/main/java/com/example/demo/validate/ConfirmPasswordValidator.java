@@ -3,9 +3,12 @@ package com.example.demo.validate;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import org.springframework.stereotype.Component;
+
 import com.example.demo.dto.AccountPasswordUpdateForm;
 
 
+@Component
 public class ConfirmPasswordValidator implements ConstraintValidator<ConfirmPassword, AccountPasswordUpdateForm> {
 
 	public void initialize(ConfirmPassword constraintAnnotation) {

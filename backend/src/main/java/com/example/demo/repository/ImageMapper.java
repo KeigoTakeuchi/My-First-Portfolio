@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -10,7 +11,7 @@ import com.example.demo.entity.Image;
 @Mapper
 public interface ImageMapper {
 
-	Image getImageById(Integer id);
+	Optional<Image> getImageById(Integer id);
 	
 	List<Image> getImagesByMessageId(Integer id);
 	

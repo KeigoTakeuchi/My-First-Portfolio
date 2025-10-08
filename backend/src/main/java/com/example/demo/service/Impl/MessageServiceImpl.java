@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +18,12 @@ import com.example.demo.dto.MessageViewDTO;
 import com.example.demo.entity.Account;
 import com.example.demo.entity.Image;
 import com.example.demo.entity.Message;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.helper.DTOConverter;
 import com.example.demo.repository.MessageMapper;
 import com.example.demo.service.ImageService;
 import com.example.demo.service.MessageService;
+import com.example.demo.validate.validateImages;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,41 +33,42 @@ import lombok.RequiredArgsConstructor;
 public class MessageServiceImpl implements MessageService {
 	
 	//デバッグ
-	private static final Logger logger = LoggerFactory.getLogger(StorageService.class);
+	//private static final Logger logger = LoggerFactory.getLogger(StorageService.class);
 
 	private final MessageMapper messageMapper;
 	private final ImageService imageService;
 	private final StorageService storageService;
+	private final validateImages validateImages;
 	
 	public List<MessageViewDTO> getAllMessages(){
 		
 		List<Message> messages = messageMapper.getAllMessages();
 		
-		if(messages.isEmpty()) {
-			return new ArrayList<MessageViewDTO>(); 
-		}
-		
 		List<MessageViewDTO> messageViewList = new ArrayList<MessageViewDTO>();
 		
-		for(Message message : messages) {
+		if(!messages.isEmpty()) {
 			
-			messageViewList.add(DTOConverter.convertToMessageViewDTO(message));
+			for(Message message : messages) {
+				
+				messageViewList.add(DTOConverter.convertToMessageViewDTO(message));
+			}	
 		}
 		return messageViewList;
 	}
 	
 	public List<MessageViewDTO> getAllMessagesByAccountId(Integer accountId){
-		List<Message> messages = messageMapper.getAllMessagesByAccountId(accountId);
 		
-		if (messages.isEmpty()) {
-			return new ArrayList<MessageViewDTO>();
-		}
+		List<Message> messages = messageMapper.getAllMessagesByAccountId(accountId);
 		
 		List<MessageViewDTO> messageViewList = new ArrayList<>();
 		
-		for (Message message : messages) {
+		
+		if(!messages.isEmpty()) {
 			
-			messageViewList.add(DTOConverter.convertToMessageViewDTO(message));
+			for (Message message : messages) {
+			
+				messageViewList.add(DTOConverter.convertToMessageViewDTO(message));
+			}
 		}
 		return messageViewList;
 	}
@@ -75,7 +76,9 @@ public class MessageServiceImpl implements MessageService {
 	//修正の必要ありかも(今後)
 	//Messageの詳細画面にはAccount,ImageのDTO情報をもつ
 	public MessageViewDTO getMessage(Integer id) {
-		Message message = messageMapper.getMessageById(id);
+		Message message = messageMapper.getMessageById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Messageが存在しません。ID : " + id));
+		
 		MessageViewDTO messageViewDTO = DTOConverter.convertToMessageViewDTO(message);
 		return messageViewDTO;
 	}
@@ -92,9 +95,13 @@ public class MessageServiceImpl implements MessageService {
 		
 		List<MessageViewDTO> messageViewList = new ArrayList<>();
 		
-		for(Message message : searchList) {
-			MessageViewDTO messageViewDTO = DTOConverter.convertToMessageViewDTO(message);
-			messageViewList.add(messageViewDTO);
+		if(!searchList.isEmpty()) {
+			
+			for(Message message : searchList) {
+				
+				MessageViewDTO messageViewDTO = DTOConverter.convertToMessageViewDTO(message);
+				messageViewList.add(messageViewDTO);
+			}	
 		}
 		return messageViewList;
 	}
@@ -112,25 +119,20 @@ public class MessageServiceImpl implements MessageService {
 	}
 	
 	//Valid通過後のハンドラメソッド内でScopeからAccountIdを取得する
-	public MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> images){
+	public MessageViewDTO postMessage(MessageFormDTO messageForm,Account account,List<MultipartFile> files){
 		
 		//ここではImageをmessageEntityに変換していない(中身が空)
 		Message message = DTOConverter.convertToMessage(messageForm, account);
-
-		messageMapper.insertMessage(message.getAccount().getId(),message);
 		
-		
-		//Formから画像を受け取った場合の処理
-		if(images != null && images.size() > 4) {
-			throw new IllegalArgumentException("画像は4枚までです"); 
-		}
 		
 		//画像登録処理
 		List<Image> imageEntities = new ArrayList<>();
 		
-		if (images != null) {
+		if (files != null) {
 			
-			for (MultipartFile image : images) {
+			validateImages.validate(files);
+			
+			for (MultipartFile image : files) {
 				
 				if (image.isEmpty()) continue ;
 				
@@ -156,18 +158,21 @@ public class MessageServiceImpl implements MessageService {
 			imageService.postAllImages(imageEntities);
 		}
 		
+		messageMapper.insertMessage(message.getAccount().getId(),message);
+		
 		message.setImages(imageEntities);
 		MessageViewDTO viewDTO = DTOConverter.convertToMessageViewDTO(message);
 		
 		return viewDTO;
 	}
 	
-	/*ControllerでFormページで送られてきたFormDTOとmessageID(@PAthVariable)をもとにMessageEntityを完成させて
+	/*ControllerでFormページで送られてきたFormDTOとmessageID(@PathVariable)をもとにMessageEntityを完成させて
 	 * MessageMapperに渡してあげる
 	 */
 	public void changeMessage(MessageFormDTO messageForm,Integer messageId,String name) {
 		//選択されたmessageIdをもとにEntityの準備
-		Message message = messageMapper.getMessageById(messageId);
+		Message message = messageMapper.getMessageById(messageId)
+				.orElseThrow(() -> new ResourceNotFoundException("Messageが存在しません。 ID : " + messageId));
 		
 		String userName = message.getAccount().getName();
 		
@@ -187,7 +192,8 @@ public class MessageServiceImpl implements MessageService {
 	//Imageの削除処理も要実装
 	public void deleteMessages(Integer messageId,String name) {
 		
-		Message message = messageMapper.getMessageById(messageId);
+		Message message = messageMapper.getMessageById(messageId)
+				.orElseThrow(() -> new ResourceNotFoundException("Messageが存在しません。 ID : " + messageId));
 		
 		String userName = message.getAccount().getName();
 		
@@ -218,7 +224,7 @@ public class MessageServiceImpl implements MessageService {
 		
 		List<Image> images = imageService.getImagesByAccount(accountId);
 		
-		if(images != null && !images.isEmpty()) {
+		if(!images.isEmpty()) {
 			
 			for(Image image : images) {
 				storageService.delete(image.getFilePath());

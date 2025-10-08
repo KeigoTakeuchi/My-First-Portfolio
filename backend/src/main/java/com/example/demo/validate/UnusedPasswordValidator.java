@@ -4,17 +4,19 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import com.example.demo.dto.AccountPasswordUpdateForm;
 import com.example.demo.entity.Account;
-import com.example.demo.service.AccountService;
+import com.example.demo.repository.AccountMapper;
 
 import lombok.RequiredArgsConstructor;
 
+@Component
 @RequiredArgsConstructor
 public class UnusedPasswordValidator implements ConstraintValidator<UnusedPassword, AccountPasswordUpdateForm> {
 
-	private final AccountService service;
+	private final AccountMapper mapper;
 	private final PasswordEncoder encoder;
 	
 	public void initialize(UnusedPassword constraintAnnotation) {
@@ -28,7 +30,12 @@ public class UnusedPasswordValidator implements ConstraintValidator<UnusedPasswo
 			return true;
 		}
 		
-		Account account = service.getAccount(value.getId());
+		Account account = mapper.getAccountById(value.getId())
+				.orElse(null);
+		
+		if(account == null) {
+			return false;
+		}
 		
 		if (encoder.matches(value.getInputNewPassword(),account.getHashedPassword())) {
             context.disableDefaultConstraintViolation();
