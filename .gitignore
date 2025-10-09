@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/eclipse,java,react,vue,vuejs,gradle,maven,vercel,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse,java,react,vue,vuejs,gradle,maven,vercel,windows
 
+# add initial backend for committing remote repository
+frontend/
+
 ### Eclipse ###
 .metadata
 bin/
