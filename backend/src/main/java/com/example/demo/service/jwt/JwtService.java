@@ -92,19 +92,24 @@ public class JwtService {
 		
 		System.out.println("【DEBUG POINT 3】:Roleからの権限取得" + roles);
 		//権限をクレームとしてラッピング(アクセストークンに含めたい権限)
-		Map<String,Object> claims = new HashMap<>();
+		Map<String,Object> accessTokenClaims = new HashMap<>();
 		
-		claims.put("roles", roles);
+		accessTokenClaims.put("roles", roles);
 		
 		if(account_id != null) {
-			claims.put("id", account_id);
+			accessTokenClaims.put("id", account_id);
 		}
 		
+		//refreshTokenの検証用のclaim
+		Map<String,Object> refreshTokenClaims = new HashMap<>();
+		
+		refreshTokenClaims.put("token_type","refresh");
+		
 		//アクセストークンには権限リストを格納する
-		String accessToken = createToken(username, now, accessTokenExpiry, claims);
+		String accessToken = createToken(username, now, accessTokenExpiry, accessTokenClaims);
 		
 		//リフレッシュトークンには権限リストを格納しない
-		String refreshToken = createToken(username, now, refreshTokenExpiry, new HashMap<>());
+		String refreshToken = createToken(username, now, refreshTokenExpiry, refreshTokenClaims);
 		
 		return new JwtToken(accessToken, refreshToken, Date.from(accessTokenExpiry));
 		

@@ -49,8 +49,7 @@ public class SecurityConfig {
 			.disable())
 
 			.authorizeHttpRequests(authz -> authz
-			.requestMatchers("/api/authenticate","/api/register").permitAll()
-			.requestMatchers("/api/refreshToken").authenticated()
+			.requestMatchers("/api/authenticate","/api/register","/api/refreshToken").permitAll()
 			.requestMatchers(HttpMethod.GET,"/api/messages/**","/api/users/**").authenticated()
 			.requestMatchers("/api/messages/**","/api/users/**","/api/debug/**").hasAnyRole("USER","ADMIN")
 			.requestMatchers("/api/**").hasRole("ADMIN")
@@ -84,7 +83,7 @@ public class SecurityConfig {
 		//Headerのカスタム認証tokenを名前付きで認識させ、front側でJavaScriptに渡せるようにする
 		corsConfig.addExposedHeader("X-AUTH-TOKEN");
 		//以下の引数にCORSを通過できるフロントエンド側のURLパスの指定をする
-		//corsConfig.addAllowedOrigin("ココにURL");
+		corsConfig.addAllowedOrigin("http://127.0.0.1:5500/");
 		corsConfig.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource corsSource = new UrlBasedCorsConfigurationSource();
 		corsSource.registerCorsConfiguration("/**",corsConfig);

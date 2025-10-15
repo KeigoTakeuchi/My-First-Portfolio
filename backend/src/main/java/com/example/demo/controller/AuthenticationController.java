@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,15 +24,17 @@ public class AuthenticationController {
 	
 	@PostMapping("/register")
 	public ResponseEntity<AuthenticationResponse> register(
-			@RequestBody AccountRegisterFormDTO accountForm){
+			@Validated @RequestBody AccountRegisterFormDTO accountForm){
 		
 		return ResponseEntity.ok(service.register(accountForm));
 	}
 	
 	@PostMapping("/authenticate")
 	public ResponseEntity<AuthenticationResponse> authenticate(
-			@RequestBody LoginFormDTO formDTO){
+			@Validated @RequestBody LoginFormDTO formDTO){
 		
 		return ResponseEntity.ok(service.authenticate(formDTO));
 	}
+	
+	
 }

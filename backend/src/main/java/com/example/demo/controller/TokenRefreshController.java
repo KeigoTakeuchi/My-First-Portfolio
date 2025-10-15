@@ -33,7 +33,7 @@ public class TokenRefreshController {
 	
 	public record ErrorResponse(String message,String code) {}
 	
-	@PostMapping("/refresh-token")
+	@PostMapping("/refreshToken")
 	public ResponseEntity<TokenRefreshResponse> refreshToken(
 			TokenRefreshRequest refreshRequest){
 		
@@ -45,8 +45,14 @@ public class TokenRefreshController {
 		try {
 			String refreshToken = tokenWithPrefix.substring(7);
 			
-			//accessTokenの検証
+			
 			var jwt = jwtDecoder.decode(refreshToken);
+			
+			String tokenType = jwt.getClaimAsString("token_type");
+			
+			if (!tokenType.equals("refresh")) {
+				throw new BadCredentialsException("リフレッシュトークンではありません");
+			}
 			
 			//JwtService内createTokenメソッドで設定したclaimsBulderのbuilderと一致させる必要がある
 			String username = jwt.getSubject();
